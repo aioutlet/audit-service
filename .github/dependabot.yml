@@ -17,14 +17,13 @@ updates:
       timezone: 'Etc/UTC'
     open-pull-requests-limit: 10
     assignees:
-      - 'aioutlet/audit-service-team'
+      - 'audit-service-team'
     commit-message:
       prefix: 'deps'
       prefix-development: 'deps-dev'
       include: 'scope'
     labels:
       - 'dependencies'
-      - 'audit-service'
     # Group related updates together to reduce PR noise
     groups:
       # Group TypeScript-related updates
@@ -76,14 +75,13 @@ updates:
       timezone: 'Etc/UTC'
     open-pull-requests-limit: 5
     assignees:
-      - 'aioutlet/devops-team'
+      - 'audit-service-team'
     commit-message:
       prefix: 'docker'
       include: 'scope'
     labels:
       - 'docker'
       - 'infrastructure'
-      - 'audit-service'
 
   # Enable version updates for GitHub Actions (if any workflows are added later)
   - package-ecosystem: 'github-actions'
@@ -95,11 +93,9 @@ updates:
       timezone: 'Etc/UTC'
     open-pull-requests-limit: 5
     assignees:
-      - 'aioutlet/devops-team'
+      - 'audit-service-team'
     commit-message:
       prefix: 'ci'
       include: 'scope'
     labels:
       - 'github-actions'
-      - 'ci/cd'
-      - 'audit-service'
