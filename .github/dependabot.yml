@@ -1,0 +1,105 @@
+# Dependabot configuration for audit-service
+# This configuration will automatically check for dependency updates
+# and create pull requests when new versions are available.
+#
+# For more information, see:
+# https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
+
+version: 2
+updates:
+  # Enable version updates for npm dependencies
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '09:00'
+      timezone: 'Etc/UTC'
+    open-pull-requests-limit: 10
+    assignees:
+      - 'aioutlet/audit-service-team'
+    commit-message:
+      prefix: 'deps'
+      prefix-development: 'deps-dev'
+      include: 'scope'
+    labels:
+      - 'dependencies'
+      - 'audit-service'
+    # Group related updates together to reduce PR noise
+    groups:
+      # Group TypeScript-related updates
+      typescript-ecosystem:
+        patterns:
+          - 'typescript'
+          - '@types/*'
+          - 'ts-*'
+          - '@typescript-eslint/*'
+        # Group minor and patch updates for TypeScript ecosystem
+        update-types:
+          - 'minor'
+          - 'patch'
+      # Group testing-related updates
+      testing-ecosystem:
+        patterns:
+          - 'jest'
+          - '@types/jest'
+          - 'supertest'
+          - '@types/supertest'
+          - 'ts-jest'
+        update-types:
+          - 'minor'
+          - 'patch'
+      # Group Express and related middleware
+      express-ecosystem:
+        patterns:
+          - 'express'
+          - '@types/express'
+          - 'express-*'
+          - 'helmet'
+          - 'cors'
+          - '@types/cors'
+          - 'compression'
+          - '@types/compression'
+          - 'morgan'
+          - '@types/morgan'
+        update-types:
+          - 'minor'
+          - 'patch'
+
+  # Enable version updates for Docker
+  - package-ecosystem: 'docker'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '09:00'
+      timezone: 'Etc/UTC'
+    open-pull-requests-limit: 5
+    assignees:
+      - 'aioutlet/devops-team'
+    commit-message:
+      prefix: 'docker'
+      include: 'scope'
+    labels:
+      - 'docker'
+      - 'infrastructure'
+      - 'audit-service'
+
+  # Enable version updates for GitHub Actions (if any workflows are added later)
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'monthly'
+      day: 'monday'
+      time: '09:00'
+      timezone: 'Etc/UTC'
+    open-pull-requests-limit: 5
+    assignees:
+      - 'aioutlet/devops-team'
+    commit-message:
+      prefix: 'ci'
+      include: 'scope'
+    labels:
+      - 'github-actions'
+      - 'ci/cd'
+      - 'audit-service'
