@@ -1,0 +1,138 @@
+[
+  {
+    "event_type": "BRUTE_FORCE_ATTEMPT",
+    "threat_level": "HIGH",
+    "source_ip": "198.51.100.33",
+    "target_resource": "/api/auth/login",
+    "user_id": null,
+    "session_id": null,
+    "attack_vector": "credential_stuffing",
+    "description": "Multiple failed login attempts from single IP address",
+    "blocked": true,
+    "rule_triggered": "rate_limit_exceeded",
+    "event_data": {
+      "attempt_count": 25,
+      "time_window_minutes": 5,
+      "attempted_usernames": ["admin", "root", "administrator", "user"],
+      "user_agents": ["curl/7.68.0", "python-requests/2.28.1"]
+    },
+    "timestamp": "2025-08-16T08:30:00Z"
+  },
+  {
+    "event_type": "SQL_INJECTION_ATTEMPT",
+    "threat_level": "CRITICAL",
+    "source_ip": "203.0.113.100",
+    "target_resource": "/api/products/search",
+    "user_id": "550e8400-e29b-41d4-a716-446655440001",
+    "session_id": "sess_malicious_001",
+    "attack_vector": "sql_injection",
+    "description": "Attempted SQL injection in search parameter",
+    "blocked": true,
+    "rule_triggered": "sql_injection_pattern",
+    "event_data": {
+      "malicious_payload": "'; DROP TABLE products; --",
+      "parameter": "search_term",
+      "sanitized": true,
+      "waf_rule_id": "942100"
+    },
+    "timestamp": "2025-08-16T09:15:00Z"
+  },
+  {
+    "event_type": "UNAUTHORIZED_ACCESS",
+    "threat_level": "MEDIUM",
+    "source_ip": "192.0.2.50",
+    "target_resource": "/api/admin/users",
+    "user_id": "550e8400-e29b-41d4-a716-446655440003",
+    "session_id": "sess_regular_user",
+    "attack_vector": "privilege_escalation",
+    "description": "Regular user attempted to access admin endpoint",
+    "blocked": true,
+    "rule_triggered": "insufficient_privileges",
+    "event_data": {
+      "user_role": "customer",
+      "required_role": "admin",
+      "endpoint_permission": "admin_read",
+      "access_token_valid": true
+    },
+    "timestamp": "2025-08-16T10:00:00Z"
+  },
+  {
+    "event_type": "SUSPICIOUS_FILE_UPLOAD",
+    "threat_level": "HIGH",
+    "source_ip": "198.51.100.75",
+    "target_resource": "/api/users/avatar",
+    "user_id": "550e8400-e29b-41d4-a716-446655440007",
+    "session_id": "sess_suspicious_upload",
+    "attack_vector": "malicious_file_upload",
+    "description": "Attempted upload of executable file disguised as image",
+    "blocked": true,
+    "rule_triggered": "file_type_mismatch",
+    "event_data": {
+      "filename": "avatar.jpg",
+      "actual_file_type": "application/x-executable",
+      "declared_mime_type": "image/jpeg",
+      "file_size_bytes": 15728640,
+      "virus_scan_result": "malware_detected"
+    },
+    "timestamp": "2025-08-16T10:45:00Z"
+  },
+  {
+    "event_type": "RATE_LIMIT_EXCEEDED",
+    "threat_level": "LOW",
+    "source_ip": "10.0.0.100",
+    "target_resource": "/api/products",
+    "user_id": "550e8400-e29b-41d4-a716-446655440005",
+    "session_id": "sess_heavy_user",
+    "attack_vector": "resource_exhaustion",
+    "description": "API rate limit exceeded for authenticated user",
+    "blocked": false,
+    "rule_triggered": "api_rate_limit",
+    "event_data": {
+      "requests_per_minute": 120,
+      "limit_per_minute": 100,
+      "user_tier": "premium",
+      "throttled": true,
+      "retry_after_seconds": 60
+    },
+    "timestamp": "2025-08-16T11:00:00Z"
+  },
+  {
+    "event_type": "CROSS_SITE_SCRIPTING",
+    "threat_level": "MEDIUM",
+    "source_ip": "203.0.113.200",
+    "target_resource": "/api/reviews/create",
+    "user_id": "550e8400-e29b-41d4-a716-446655440009",
+    "session_id": "sess_xss_attempt",
+    "attack_vector": "stored_xss",
+    "description": "Attempted XSS injection in review content",
+    "blocked": true,
+    "rule_triggered": "xss_pattern_detected",
+    "event_data": {
+      "malicious_script": "<script>alert('xss')</script>",
+      "field": "review_content",
+      "sanitized_content": "alert('xss')",
+      "encoding_applied": "html_entity"
+    },
+    "timestamp": "2025-08-16T11:15:00Z"
+  },
+  {
+    "event_type": "DATA_EXFILTRATION_ATTEMPT",
+    "threat_level": "CRITICAL",
+    "source_ip": "198.51.100.150",
+    "target_resource": "/api/users/export",
+    "user_id": "550e8400-e29b-41d4-a716-446655440001",
+    "session_id": "sess_compromised_admin",
+    "attack_vector": "data_theft",
+    "description": "Large data export request from compromised admin account",
+    "blocked": true,
+    "rule_triggered": "anomalous_data_access",
+    "event_data": {
+      "requested_records": 100000,
+      "normal_export_size": 1000,
+      "includes_pii": true,
+      "unusual_time": "03:00 AM",
+      "geolocation_mismatch": true
+    },
+    "timestamp": "2025-08-16T11:45:00Z"
+  }
+]

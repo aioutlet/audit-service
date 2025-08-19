@@ -1,0 +1,116 @@
+[
+  {
+    "service_name": "auth-service",
+    "event_type": "USER_LOGIN",
+    "enabled": true,
+    "log_level": "INFO",
+    "retention_days": 365,
+    "include_request_body": false,
+    "include_response_body": false,
+    "include_headers": true,
+    "sampling_rate": 1.0,
+    "filters": {
+      "exclude_internal_calls": true,
+      "log_failed_attempts": true
+    }
+  },
+  {
+    "service_name": "auth-service",
+    "event_type": "PASSWORD_RESET",
+    "enabled": true,
+    "log_level": "WARNING",
+    "retention_days": 730,
+    "include_request_body": false,
+    "include_response_body": false,
+    "include_headers": true,
+    "sampling_rate": 1.0,
+    "filters": {
+      "always_log": true
+    }
+  },
+  {
+    "service_name": "user-service",
+    "event_type": "PROFILE_UPDATE",
+    "enabled": true,
+    "log_level": "INFO",
+    "retention_days": 180,
+    "include_request_body": true,
+    "include_response_body": false,
+    "include_headers": true,
+    "sampling_rate": 1.0,
+    "filters": {
+      "exclude_fields": ["password", "ssn"]
+    }
+  },
+  {
+    "service_name": "product-service",
+    "event_type": "PRODUCT_VIEW",
+    "enabled": true,
+    "log_level": "DEBUG",
+    "retention_days": 90,
+    "include_request_body": false,
+    "include_response_body": false,
+    "include_headers": false,
+    "sampling_rate": 0.1,
+    "filters": {
+      "sample_popular_products": true
+    }
+  },
+  {
+    "service_name": "order-service",
+    "event_type": "ORDER_CREATED",
+    "enabled": true,
+    "log_level": "INFO",
+    "retention_days": 2555,
+    "include_request_body": true,
+    "include_response_body": true,
+    "include_headers": true,
+    "sampling_rate": 1.0,
+    "filters": {
+      "critical_business_event": true
+    }
+  },
+  {
+    "service_name": "payment-service",
+    "event_type": "PAYMENT_PROCESSED",
+    "enabled": true,
+    "log_level": "INFO",
+    "retention_days": 2555,
+    "include_request_body": false,
+    "include_response_body": false,
+    "include_headers": true,
+    "sampling_rate": 1.0,
+    "filters": {
+      "pci_compliant": true,
+      "exclude_card_data": true
+    }
+  },
+  {
+    "service_name": "notification-service",
+    "event_type": "EMAIL_SENT",
+    "enabled": true,
+    "log_level": "INFO",
+    "retention_days": 90,
+    "include_request_body": false,
+    "include_response_body": false,
+    "include_headers": false,
+    "sampling_rate": 0.5,
+    "filters": {
+      "track_delivery_status": true
+    }
+  },
+  {
+    "service_name": "admin-service",
+    "event_type": "ADMIN_LOGIN",
+    "enabled": true,
+    "log_level": "WARNING",
+    "retention_days": 1095,
+    "include_request_body": true,
+    "include_response_body": false,
+    "include_headers": true,
+    "sampling_rate": 1.0,
+    "filters": {
+      "high_privilege_access": true
+    }
+  }
+]

@@ -1,0 +1,153 @@
+[
+  {
+    "event_type": "SERVICE_STARTED",
+    "component": "auth-service",
+    "event_name": "APPLICATION_STARTUP",
+    "description": "Auth service started successfully",
+    "severity": "INFO",
+    "metadata": {
+      "version": "1.0.0",
+      "port": 3001,
+      "environment": "development",
+      "startup_time_ms": 2340
+    },
+    "host_name": "auth-service-01",
+    "process_id": 1234,
+    "memory_usage": 45678912,
+    "cpu_usage": 15.5,
+    "disk_usage": 25.3,
+    "timestamp": "2025-08-16T08:00:00Z"
+  },
+  {
+    "event_type": "DATABASE_CONNECTED",
+    "component": "user-service",
+    "event_name": "DB_CONNECTION_ESTABLISHED",
+    "description": "Successfully connected to PostgreSQL database",
+    "severity": "INFO",
+    "metadata": {
+      "database": "user_db",
+      "host": "localhost",
+      "pool_size": 10,
+      "connection_time_ms": 150
+    },
+    "host_name": "user-service-01",
+    "process_id": 1235,
+    "memory_usage": 38924800,
+    "cpu_usage": 8.2,
+    "disk_usage": 18.7,
+    "timestamp": "2025-08-16T08:00:30Z"
+  },
+  {
+    "event_type": "CACHE_HIT",
+    "component": "product-service",
+    "event_name": "REDIS_CACHE_ACCESS",
+    "description": "Cache hit for popular products list",
+    "severity": "DEBUG",
+    "metadata": {
+      "cache_key": "popular_products_list",
+      "ttl_remaining": 1800,
+      "hit_ratio": 0.85
+    },
+    "host_name": "product-service-01",
+    "process_id": 1236,
+    "memory_usage": 52428800,
+    "cpu_usage": 12.1,
+    "disk_usage": 30.2,
+    "timestamp": "2025-08-16T08:05:15Z"
+  },
+  {
+    "event_type": "ERROR_OCCURRED",
+    "component": "inventory-service",
+    "event_name": "DATABASE_TIMEOUT",
+    "description": "Database query timeout while checking stock levels",
+    "severity": "ERROR",
+    "metadata": {
+      "query": "SELECT * FROM stock_levels WHERE product_id = ?",
+      "timeout_ms": 30000,
+      "retry_count": 3,
+      "error_code": "QUERY_TIMEOUT"
+    },
+    "host_name": "inventory-service-01",
+    "process_id": 1237,
+    "memory_usage": 41943040,
+    "cpu_usage": 45.8,
+    "disk_usage": 22.9,
+    "timestamp": "2025-08-16T09:15:30Z"
+  },
+  {
+    "event_type": "HEALTH_CHECK",
+    "component": "order-service",
+    "event_name": "SYSTEM_HEALTH_GOOD",
+    "description": "All system components are healthy",
+    "severity": "INFO",
+    "metadata": {
+      "database_status": "healthy",
+      "cache_status": "healthy",
+      "external_apis": "healthy",
+      "response_time_ms": 45
+    },
+    "host_name": "order-service-01",
+    "process_id": 1238,
+    "memory_usage": 67108864,
+    "cpu_usage": 20.3,
+    "disk_usage": 35.7,
+    "timestamp": "2025-08-16T10:00:00Z"
+  },
+  {
+    "event_type": "QUEUE_OVERFLOW",
+    "component": "notification-service",
+    "event_name": "EMAIL_QUEUE_FULL",
+    "description": "Email notification queue has reached maximum capacity",
+    "severity": "WARNING",
+    "metadata": {
+      "queue_size": 10000,
+      "max_capacity": 10000,
+      "processing_rate": 50,
+      "estimated_delay_minutes": 200
+    },
+    "host_name": "notification-service-01",
+    "process_id": 1239,
+    "memory_usage": 73400320,
+    "cpu_usage": 65.4,
+    "disk_usage": 28.1,
+    "timestamp": "2025-08-16T10:30:45Z"
+  },
+  {
+    "event_type": "SECURITY_SCAN",
+    "component": "admin-service",
+    "event_name": "VULNERABILITY_CHECK",
+    "description": "Automated security vulnerability scan completed",
+    "severity": "INFO",
+    "metadata": {
+      "scan_duration_ms": 45000,
+      "vulnerabilities_found": 0,
+      "last_scan": "2025-08-15T10:00:00Z",
+      "scan_type": "dependency_check"
+    },
+    "host_name": "admin-service-01",
+    "process_id": 1240,
+    "memory_usage": 89128960,
+    "cpu_usage": 35.2,
+    "disk_usage": 42.6,
+    "timestamp": "2025-08-16T11:00:00Z"
+  },
+  {
+    "event_type": "BACKUP_COMPLETED",
+    "component": "audit-service",
+    "event_name": "DATABASE_BACKUP_SUCCESS",
+    "description": "Daily database backup completed successfully",
+    "severity": "INFO",
+    "metadata": {
+      "backup_size_mb": 2048,
+      "backup_duration_ms": 180000,
+      "backup_location": "/backups/audit_db_2025-08-16.sql.gz",
+      "compression_ratio": 0.35
+    },
+    "host_name": "audit-service-01",
+    "process_id": 1241,
+    "memory_usage": 134217728,
+    "cpu_usage": 55.7,
+    "disk_usage": 78.3,
+    "timestamp": "2025-08-16T11:30:00Z"
+  }
+]

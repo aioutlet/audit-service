@@ -1,4 +1,4 @@
-import amqp, { Connection, Channel, ConsumeMessage } from 'amqplib';
+import { connect, Connection, Channel, ConsumeMessage } from 'amqplib';
 import dotenv from 'dotenv';
 import { databaseService, initializeServices } from '../services/index.js';
 
@@ -34,7 +34,7 @@ class RabbitMQService {
       const rabbitUrl = process.env.RABBITMQ_URL || 'amqp://admin:admin123@localhost:5672/';
       console.log('🔌 Connecting to RabbitMQ:', rabbitUrl.replace(/\/\/.*@/, '//***@'));
 
-      this.connection = await amqp.connect(rabbitUrl);
+      this.connection = await connect(rabbitUrl);
       this.channel = await this.connection.createChannel();
 
       // Setup connection error handlers

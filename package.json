@@ -14,8 +14,9 @@
     "format": "prettier --write \"src/**/*.ts\"",
     "docker:build": "docker build -t audit-service .",
     "docker:run": "docker-compose up -d",
-    "db:migrate": "node dist/scripts/migrate.js",
-    "db:seed": "node dist/scripts/seed.js"
+    "db:setup": "node database/scripts/setup.js",
+    "db:seed": "node database/scripts/seed.js",
+    "db:clear": "node database/scripts/clear.js"
   },
   "dependencies": {
     "amqplib": "^0.10.8",
