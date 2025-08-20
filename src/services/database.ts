@@ -8,13 +8,16 @@ export class DatabaseService {
   private isInitialized = false;
 
   constructor() {
-    this.pool = new Pool({
-      connectionString: config.database.url,
+    console.log('🔍 Database config:', {
+      url: config.database.url,
       host: config.database.host,
       port: config.database.port,
       database: config.database.name,
       user: config.database.user,
-      password: config.database.password,
+    });
+
+    this.pool = new Pool({
+      connectionString: config.database.url,
       ssl: config.database.ssl ? { rejectUnauthorized: false } : false,
       min: config.database.poolMin,
       max: config.database.poolMax,

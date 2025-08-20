@@ -121,10 +121,16 @@ export const config: Config = {
     ssl: getEnvBoolean('DB_SSL', false),
     poolMin: getEnvNumber('DB_POOL_MIN', 5),
     poolMax: getEnvNumber('DB_POOL_MAX', 20),
-    url: getEnv(
-      'DATABASE_URL',
-      `postgresql://${getEnv('DB_USER', 'postgres')}:${getEnv('DB_PASSWORD', 'password')}@${getEnv('DB_HOST', 'localhost')}:${getEnvNumber('DB_PORT', 5432)}/${getEnv('DB_NAME', 'audit_service')}`
-    ),
+    url: (() => {
+      const databaseUrl = process.env.DATABASE_URL;
+      const constructedUrl = `postgresql://${getEnv('DB_USER', 'postgres')}:${getEnv('DB_PASSWORD', 'password')}@${getEnv('DB_HOST', 'localhost')}:${getEnvNumber('DB_PORT', 5432)}/${getEnv('DB_NAME', 'audit_service')}`;
+      console.log('🔍 Database URL debug:', {
+        DATABASE_URL_env: databaseUrl,
+        constructed_url: constructedUrl,
+        final_url: databaseUrl || constructedUrl,
+      });
+      return databaseUrl || constructedUrl;
+    })(),
   },
 
   redis: {
