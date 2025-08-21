@@ -40,7 +40,7 @@ services:
       start_period: 30s
 
   postgres:
-    image: postgres:15-alpine
+    image: postgres:latest
     container_name: audit-postgres-docker
     restart: unless-stopped
     environment:
