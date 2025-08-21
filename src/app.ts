@@ -11,11 +11,10 @@ import { logger } from '@/utils/logger';
 import { errorHandler } from '@/middleware/errorHandler';
 import { correlationIdMiddleware } from '@/middleware/correlationId';
 import { requestLogger } from '@/middleware/requestLogger';
-import { healthRoutes } from '@/routes/health';
 import { auditRoutes } from '@/routes/audit.routes';
-import { metricsRoutes } from '@/routes/metrics';
 import { DatabaseService } from '@/services/database';
 import { RedisService } from '@/services/redis';
+import { health, readiness, liveness, metrics } from '@/controllers/operational.controller';
 
 class AuditServiceApp {
   public app: express.Application;
@@ -90,16 +89,14 @@ class AuditServiceApp {
   }
 
   private initializeRoutes(): void {
-    // Health check routes (no auth required)
-    this.app.use('/health', healthRoutes);
-
-    // Metrics routes
-    if (config.metrics.enabled) {
-      this.app.use('/metrics', metricsRoutes);
-    }
-
-    // API routes
+    // API routes (protected)
     this.app.use('/api/v1/audit', auditRoutes);
+
+    // Operational endpoints (for monitoring, load balancers, K8s probes)
+    this.app.get('/health', health); // Main health check
+    this.app.get('/health/ready', readiness); // Readiness probe
+    this.app.get('/health/live', liveness); // Liveness probe
+    this.app.get('/metrics', metrics); // Basic metrics
 
     // Root endpoint
     this.app.get('/', (req, res) => {
@@ -135,10 +132,6 @@ class AuditServiceApp {
       // Initialize Redis connection
       await this.redisService.initialize();
       logger.info('Redis connection established');
-
-      // Run database migrations
-      await this.databaseService.runMigrations();
-      logger.info('Database migrations completed');
     } catch (error) {
       logger.error('Failed to initialize services:', error);
       throw error;

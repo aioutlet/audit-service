@@ -1,4 +1,4 @@
-import { connect, Connection, Channel, ConsumeMessage } from 'amqplib';
+import * as amqp from 'amqplib';
 import dotenv from 'dotenv';
 import { databaseService, initializeServices } from '../services/index.js';
 
@@ -16,11 +16,11 @@ export interface EventMessage {
   };
 }
 
-export type EventHandler = (event: EventMessage, message: ConsumeMessage) => Promise<void>;
+export type EventHandler = (event: EventMessage, message: any) => Promise<void>;
 
 class RabbitMQService {
-  private connection: Connection | null = null;
-  private channel: Channel | null = null;
+  private connection: any = null;
+  private channel: any = null;
   private isConnected: boolean = false;
   private eventHandlers: Map<string, EventHandler> = new Map();
 
@@ -34,11 +34,11 @@ class RabbitMQService {
       const rabbitUrl = process.env.RABBITMQ_URL || 'amqp://admin:admin123@localhost:5672/';
       console.log('🔌 Connecting to RabbitMQ:', rabbitUrl.replace(/\/\/.*@/, '//***@'));
 
-      this.connection = await connect(rabbitUrl);
+      this.connection = await amqp.connect(rabbitUrl);
       this.channel = await this.connection.createChannel();
 
       // Setup connection error handlers
-      this.connection.on('error', (err) => {
+      this.connection.on('error', (err: any) => {
         console.error('❌ RabbitMQ connection error:', err);
         this.isConnected = false;
       });
@@ -96,7 +96,7 @@ class RabbitMQService {
       // Start consuming auth events
       await this.channel.consume(
         'audit.events',
-        async (message) => {
+        async (message: any) => {
           if (!message) return;
 
           try {
@@ -130,7 +130,7 @@ class RabbitMQService {
     }
   }
 
-  private async processEvent(event: EventMessage, message: ConsumeMessage): Promise<void> {
+  private async processEvent(event: EventMessage, message: any): Promise<void> {
     const handler = this.eventHandlers.get(event.eventType);
 
     if (handler) {
@@ -182,7 +182,7 @@ class RabbitMQService {
   }
 
   isHealthy(): boolean {
-    return this.isConnected && this.channel !== null && !this.channel.closing;
+    return this.isConnected && this.channel !== null;
   }
 }
 

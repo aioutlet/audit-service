@@ -8,15 +8,14 @@ export const redisService = new RedisService();
 
 // Initialize services
 export async function initializeServices(): Promise<void> {
-    await databaseService.initialize();
-    await redisService.initialize();
-    await databaseService.runMigrations();
+  await databaseService.initialize();
+  await redisService.initialize();
 }
 
 // Cleanup services
 export async function cleanupServices(): Promise<void> {
-    await databaseService.close();
-    await redisService.close();
+  await databaseService.close();
+  await redisService.close();
 }
 
 export { DatabaseService, RedisService };
