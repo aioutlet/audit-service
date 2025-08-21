@@ -268,16 +268,37 @@ main() {
         log_success "✅ Audit Service setup completed successfully!"
         echo "=========================================="
         echo ""
-        echo "📋 Setup Summary:"
+        
+        # Start services with Docker Compose
+        log_info "� Starting services with Docker Compose..."
+        if docker-compose up -d; then
+            log_success "Services started successfully"
+            echo ""
+            log_info "⏳ Waiting for services to be ready..."
+            sleep 10
+            
+            # Check service health
+            if docker-compose ps | grep -q "Up.*healthy"; then
+                log_success "Services are healthy and ready"
+            else
+                log_warning "Services may still be starting up"
+            fi
+        else
+            log_error "Failed to start services with Docker Compose"
+            return 1
+        fi
+        echo ""
+        
+        echo "�📋 Setup Summary:"
         echo "  • Environment: $NODE_ENV"
         echo "  • Port: $PORT"
         echo "  • Docker image: $SERVICE_NAME"
         echo ""
-        echo "🚀 Next Steps:"
-        echo "  1. Start with Docker Compose: docker-compose up -d"
-        echo "  2. View logs: docker-compose logs -f"
-        echo "  3. Stop services: docker-compose down"
-        echo "  4. For development: npm run dev"
+        echo "🚀 Service is now running:"
+        echo "  • View status: docker-compose ps"
+        echo "  • View logs: docker-compose logs -f"
+        echo "  • Stop services: bash .ops/teardown.sh"
+        echo "  • Service endpoint: http://localhost:$PORT"
         echo ""
     else
         log_error "Setup validation failed"
