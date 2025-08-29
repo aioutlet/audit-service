@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { verify } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import { config } from '@/config';
 import { logger } from '@/utils/logger';
 
@@ -22,7 +22,7 @@ export const authenticateToken = (req: AuthenticatedRequest, res: Response, next
   }
 
   try {
-    const decoded = verify(token, config.auth.jwtSecret) as any;
+    const decoded = jwt.verify(token, config.auth.jwtSecret) as any;
     req.user = decoded;
     next();
   } catch (error) {
@@ -41,7 +41,7 @@ export const authenticateServiceToken = (req: AuthenticatedRequest, res: Respons
   }
 
   try {
-    const decoded = verify(token, config.auth.serviceSecret) as any;
+    const decoded = jwt.verify(token, config.auth.serviceSecret) as any;
     req.user = {
       id: decoded.serviceId,
       email: decoded.serviceName,
@@ -84,7 +84,7 @@ export const optionalAuth = (req: AuthenticatedRequest, res: Response, next: Nex
   }
 
   try {
-    const decoded = verify(token, config.auth.jwtSecret) as any;
+    const decoded = jwt.verify(token, config.auth.jwtSecret) as any;
     req.user = decoded;
   } catch (error) {
     // Token is invalid but we continue without user info

@@ -124,11 +124,6 @@ export const config: Config = {
     url: (() => {
       const databaseUrl = process.env.DATABASE_URL;
       const constructedUrl = `postgresql://${getEnv('DB_USER', 'postgres')}:${getEnv('DB_PASSWORD', 'password')}@${getEnv('DB_HOST', 'localhost')}:${getEnvNumber('DB_PORT', 5432)}/${getEnv('DB_NAME', 'audit_service')}`;
-      console.log('🔍 Database URL debug:', {
-        DATABASE_URL_env: databaseUrl,
-        constructed_url: constructedUrl,
-        final_url: databaseUrl || constructedUrl,
-      });
       return databaseUrl || constructedUrl;
     })(),
   },

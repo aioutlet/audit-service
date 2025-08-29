@@ -9,20 +9,10 @@ export class RedisService {
   constructor() {
     this.client = createClient({
       url: config.redis.url,
-      password: config.redis.password,
-      database: config.redis.db,
     });
 
     this.client.on('error', (err) => {
       logger.error('Redis Client Error:', err);
-    });
-
-    this.client.on('connect', () => {
-      logger.info('Redis Client Connected');
-    });
-
-    this.client.on('ready', () => {
-      logger.info('Redis Client Ready');
     });
 
     this.client.on('end', () => {
@@ -34,7 +24,7 @@ export class RedisService {
     try {
       await this.client.connect();
       this.isInitialized = true;
-      logger.info('Redis connection established successfully');
+      logger.info('Redis connection established');
     } catch (error) {
       logger.error('Failed to initialize Redis connection:', error);
       throw error;

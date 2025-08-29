@@ -8,14 +8,6 @@ export class DatabaseService {
   private isInitialized = false;
 
   constructor() {
-    console.log('🔍 Database config:', {
-      url: config.database.url,
-      host: config.database.host,
-      port: config.database.port,
-      database: config.database.name,
-      user: config.database.user,
-    });
-
     this.pool = new Pool({
       connectionString: config.database.url,
       ssl: config.database.ssl ? { rejectUnauthorized: false } : false,

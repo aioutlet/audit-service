@@ -14,7 +14,7 @@ import { requestLogger } from '@/middleware/requestLogger';
 import { auditRoutes } from '@/routes/audit.routes';
 import { DatabaseService } from '@/services/database';
 import { RedisService } from '@/services/redis';
-import { health, readiness, liveness, metrics } from '@/controllers/operational.controller';
+import { health, readiness, liveness, metrics, setServices } from '@/controllers/operational.controller';
 
 class AuditServiceApp {
   public app: express.Application;
@@ -127,11 +127,12 @@ class AuditServiceApp {
     try {
       // Initialize database connection
       await this.databaseService.initialize();
-      logger.info('Database connection established');
 
       // Initialize Redis connection
       await this.redisService.initialize();
-      logger.info('Redis connection established');
+
+      // Inject initialized services into operational controller
+      setServices(this.databaseService, this.redisService);
     } catch (error) {
       logger.error('Failed to initialize services:', error);
       throw error;

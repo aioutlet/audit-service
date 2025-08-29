@@ -8,8 +8,14 @@ import { DatabaseService } from '@/services/database';
 import { RedisService } from '@/services/redis';
 import { config } from '@/config';
 
-const dbService = new DatabaseService();
-const redisService = new RedisService();
+// Services will be injected from the app
+let dbService: DatabaseService;
+let redisService: RedisService;
+
+export function setServices(database: DatabaseService, redis: RedisService) {
+  dbService = database;
+  redisService = redis;
+}
 
 export async function health(req: Request, res: Response) {
   const startTime = Date.now();
