@@ -93,6 +93,5 @@ prettier.config.*
 .gitlab-ci.yml
 Jenkinsfile
 
-# Package lock files (keep one)
-package-lock.json
+# Package lock files (exclude yarn.lock but keep package-lock.json for npm ci)
 yarn.lock
