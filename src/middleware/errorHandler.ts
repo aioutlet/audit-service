@@ -2,9 +2,12 @@ import { Request, Response, NextFunction } from 'express';
 import { logger } from '@/utils/logger';
 
 export const errorHandler = (error: any, req: Request, res: Response, next: NextFunction): void => {
+  // Don't leak error details in production
+  const isDevelopment = process.env.NODE_ENV === 'development';
+
   logger.error('Unhandled error:', {
     error: error.message,
-    stack: error.stack,
+    stack: isDevelopment ? error.stack : 'Stack trace hidden in production',
     url: req.url,
     method: req.method,
     body: req.body,
@@ -12,10 +15,8 @@ export const errorHandler = (error: any, req: Request, res: Response, next: Next
     query: req.query,
     headers: req.headers,
     correlationId: req.headers['x-correlation-id'],
+    environment: process.env.NODE_ENV,
   });
-
-  // Don't leak error details in production
-  const isDevelopment = process.env.NODE_ENV === 'development';
 
   if (error.status) {
     res.status(error.status).json({
