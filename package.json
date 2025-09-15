@@ -41,7 +41,7 @@
     "redis": "^4.6.11",
     "swagger-ui-express": "^5.0.0",
     "tsc-alias": "^1.8.16",
-    "uuid": "^9.0.1",
+    "uuid": "^13.0.0",
     "winston": "^3.11.0"
   },
   "devDependencies": {
