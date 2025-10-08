@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { logger } from '@/utils/logger';
+import logger from '@/observability/logging';
 
 export const errorHandler = (error: any, req: Request, res: Response, next: NextFunction): void => {
   // Don't leak error details in production

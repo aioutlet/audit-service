@@ -1,28 +1,23 @@
+/**
+ * RabbitMQ Message Broker Implementation
+ */
+
 import * as amqp from 'amqplib';
-import dotenv from 'dotenv';
-import { databaseService, initializeServices } from '../services/index.js';
+import { IMessageBroker, EventMessage, EventHandler } from '../IMessageBroker.js';
+import { databaseService, initializeServices } from '../../services/index.js';
 
-dotenv.config();
-
-export interface EventMessage {
-  eventId: string;
-  eventType: string;
-  timestamp: string;
-  source: string;
-  data: any;
-  metadata: {
-    correlationId: string;
-    version: string;
-  };
-}
-
-export type EventHandler = (event: EventMessage, message: any) => Promise<void>;
-
-class RabbitMQService {
+export class RabbitMQBroker implements IMessageBroker {
   private connection: any = null;
   private channel: any = null;
   private isConnected: boolean = false;
   private eventHandlers: Map<string, EventHandler> = new Map();
+  private brokerUrl: string;
+  private queueName: string;
+
+  constructor(brokerUrl: string, queueName: string) {
+    this.brokerUrl = brokerUrl;
+    this.queueName = queueName;
+  }
 
   async connect(): Promise<void> {
     try {
@@ -31,10 +26,9 @@ class RabbitMQService {
       await initializeServices();
       console.log('✅ Database services initialized');
 
-      const rabbitUrl = process.env.RABBITMQ_URL || 'amqp://admin:admin123@localhost:5672/';
-      console.log('🔌 Connecting to RabbitMQ:', rabbitUrl.replace(/\/\/.*@/, '//***@'));
+      console.log('🔌 Connecting to RabbitMQ:', this.brokerUrl.replace(/\/\/.*@/, '//***@'));
 
-      this.connection = await amqp.connect(rabbitUrl);
+      this.connection = await amqp.connect(this.brokerUrl);
       this.channel = await this.connection.createChannel();
 
       // Setup connection error handlers
@@ -64,24 +58,24 @@ class RabbitMQService {
     if (!this.channel) throw new Error('Channel not initialized');
 
     try {
-      // Ensure the events exchange exists
+      // Ensure the events exchange exists (should already exist from infrastructure setup)
       await this.channel.assertExchange('aioutlet.events', 'topic', { durable: true });
 
-      // Ensure audit events queue exists
-      await this.channel.assertQueue('audit.events', {
+      // Ensure audit service queue exists (should already exist from infrastructure setup)
+      await this.channel.assertQueue(this.queueName, {
         durable: true,
         arguments: {
-          'x-dead-letter-exchange': 'aioutlet.dead-letter',
+          'x-dead-letter-exchange': 'aioutlet.dlx',
           'x-message-ttl': 300000, // 5 minutes
         },
       });
 
-      // Bind auth events to audit queue
-      await this.channel.bindQueue('audit.events', 'aioutlet.events', 'auth.*');
+      // Note: Queue bindings are already set up by infrastructure scripts
+      // audit-service.queue is bound to '#' (all events)
 
-      console.log('✅ Audit service infrastructure ready');
+      console.log('✅ RabbitMQ infrastructure ready');
     } catch (error) {
-      console.error('❌ Failed to setup infrastructure:', error);
+      console.error('❌ Failed to setup RabbitMQ infrastructure:', error);
       throw error;
     }
   }
@@ -93,15 +87,15 @@ class RabbitMQService {
       // Set prefetch count for better load distribution
       await this.channel.prefetch(10);
 
-      // Start consuming auth events
+      // Start consuming from audit-service queue (receives all events via '#' binding)
       await this.channel.consume(
-        'audit.events',
+        this.queueName,
         async (message: any) => {
           if (!message) return;
 
           try {
             const eventData: EventMessage = JSON.parse(message.content.toString());
-            console.log(`��� Received event: ${eventData.eventType}`, {
+            console.log(`📨 Received event: ${eventData.eventType}`, {
               eventId: eventData.eventId,
               source: eventData.source,
             });
@@ -123,7 +117,7 @@ class RabbitMQService {
         }
       );
 
-      console.log('��� Audit service listening for events...');
+      console.log(`👂 Audit service listening for events on queue: ${this.queueName}`);
     } catch (error) {
       console.error('❌ Failed to start consuming:', error);
       throw error;
@@ -131,7 +125,13 @@ class RabbitMQService {
   }
 
   private async processEvent(event: EventMessage, message: any): Promise<void> {
-    const handler = this.eventHandlers.get(event.eventType);
+    // Check for specific event type handler first
+    let handler = this.eventHandlers.get(event.eventType);
+
+    // If no specific handler, check for wildcard handler
+    if (!handler) {
+      handler = this.eventHandlers.get('*');
+    }
 
     if (handler) {
       await handler(event, message);
@@ -155,7 +155,7 @@ class RabbitMQService {
     };
 
     // Here you would typically save to your audit database
-    console.log('�� Audit entry created:', auditEntry);
+    console.log('📝 Audit entry created:', auditEntry);
 
     // TODO: Save to database
     // await this.auditRepository.save(auditEntry);
@@ -175,7 +175,7 @@ class RabbitMQService {
         await this.connection.close();
       }
       this.isConnected = false;
-      console.log('��� RabbitMQ connection closed gracefully');
+      console.log('👋 RabbitMQ connection closed gracefully');
     } catch (error) {
       console.error('❌ Error closing RabbitMQ connection:', error);
     }
@@ -185,21 +185,3 @@ class RabbitMQService {
     return this.isConnected && this.channel !== null;
   }
 }
-
-// Create singleton instance
-const rabbitMQService = new RabbitMQService();
-
-// Graceful shutdown
-process.on('SIGINT', async () => {
-  console.log('��� Received SIGINT, closing RabbitMQ connection...');
-  await rabbitMQService.close();
-  process.exit(0);
-});
-
-process.on('SIGTERM', async () => {
-  console.log('��� Received SIGTERM, closing RabbitMQ connection...');
-  await rabbitMQService.close();
-  process.exit(0);
-});
-
-export default rabbitMQService;

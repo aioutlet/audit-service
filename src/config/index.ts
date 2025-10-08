@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 
 // Load environment variables
-dotenv.config();
+dotenv.config({ override: false });
 
 interface DatabaseConfig {
   host: string;
@@ -12,14 +12,6 @@ interface DatabaseConfig {
   ssl: boolean;
   poolMin: number;
   poolMax: number;
-  url: string;
-}
-
-interface RedisConfig {
-  host: string;
-  port: number;
-  password?: string;
-  db: number;
   url: string;
 }
 
@@ -37,6 +29,8 @@ interface CorsConfig {
 interface LoggingConfig {
   level: string;
   format: string;
+  toConsole: boolean;
+  toFile: boolean;
   filePath?: string;
 }
 
@@ -68,7 +62,6 @@ interface Config {
   port: number;
   host: string;
   database: DatabaseConfig;
-  redis: RedisConfig;
   rateLimit: RateLimitConfig;
   cors: CorsConfig;
   logging: LoggingConfig;
@@ -128,14 +121,6 @@ export const config: Config = {
     })(),
   },
 
-  redis: {
-    host: getEnv('REDIS_HOST', 'localhost'),
-    port: getEnvNumber('REDIS_PORT', 6379),
-    password: getEnv('REDIS_PASSWORD', undefined),
-    db: getEnvNumber('REDIS_DB', 0),
-    url: getEnv('REDIS_URL', `redis://${getEnv('REDIS_HOST', 'localhost')}:${getEnvNumber('REDIS_PORT', 6379)}`),
-  },
-
   rateLimit: {
     enabled: true,
     windowMs: getEnvNumber('API_RATE_LIMIT_WINDOW_MS', 60000),
@@ -150,7 +135,9 @@ export const config: Config = {
   logging: {
     level: getEnv('LOG_LEVEL', 'info'),
     format: getEnv('LOG_FORMAT', 'json'),
-    filePath: getEnv('LOG_FILE_PATH', undefined),
+    toConsole: getEnvBoolean('LOG_TO_CONSOLE', true),
+    toFile: getEnvBoolean('LOG_TO_FILE', false),
+    filePath: process.env.LOG_FILE_PATH || undefined,
   },
 
   metrics: {

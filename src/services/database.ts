@@ -1,6 +1,6 @@
 import { Pool, PoolClient } from 'pg';
 import { config } from '@/config';
-import { logger } from '@/utils/logger';
+import logger from '@/observability/logging';
 import { AuditLog, CreateAuditLogRequest, AuditLogSearchParams, AuditStatistics } from '@/types';
 
 export class DatabaseService {

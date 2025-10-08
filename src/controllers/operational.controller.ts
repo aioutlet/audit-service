@@ -5,16 +5,13 @@
 
 import { Request, Response } from 'express';
 import { DatabaseService } from '@/services/database';
-import { RedisService } from '@/services/redis';
 import { config } from '@/config';
 
 // Services will be injected from the app
 let dbService: DatabaseService;
-let redisService: RedisService;
 
-export function setServices(database: DatabaseService, redis: RedisService) {
+export function setServices(database: DatabaseService) {
   dbService = database;
-  redisService = redis;
 }
 
 export async function health(req: Request, res: Response) {
@@ -24,13 +21,10 @@ export async function health(req: Request, res: Response) {
     // Check database health
     const dbHealth = await dbService.healthCheck();
 
-    // Check Redis health
-    const redisHealth = await redisService.healthCheck();
-
     const responseTime = Date.now() - startTime;
 
     const healthStatus = {
-      status: dbHealth && redisHealth ? 'healthy' : 'unhealthy',
+      status: dbHealth ? 'healthy' : 'unhealthy',
       service: 'audit-service',
       timestamp: new Date().toISOString(),
       version: config.service.version,
@@ -41,10 +35,6 @@ export async function health(req: Request, res: Response) {
         database: {
           status: dbHealth ? 'healthy' : 'unhealthy',
           type: 'postgresql',
-        },
-        redis: {
-          status: redisHealth ? 'healthy' : 'unhealthy',
-          type: 'redis',
         },
       },
     };
@@ -72,16 +62,14 @@ export async function health(req: Request, res: Response) {
 export async function readiness(req: Request, res: Response) {
   try {
     const dbHealth = await dbService.healthCheck();
-    const redisHealth = await redisService.healthCheck();
 
-    if (dbHealth && redisHealth) {
+    if (dbHealth) {
       res.status(200).json({
         status: 'ready',
         service: 'audit-service',
         timestamp: new Date().toISOString(),
         checks: {
           database: 'connected',
-          redis: 'connected',
         },
       });
     } else {
@@ -92,7 +80,6 @@ export async function readiness(req: Request, res: Response) {
         error: 'Service dependencies not available',
         checks: {
           database: dbHealth ? 'connected' : 'disconnected',
-          redis: redisHealth ? 'connected' : 'disconnected',
         },
       });
     }

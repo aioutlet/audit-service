@@ -7,24 +7,22 @@ import morgan from 'morgan';
 import 'express-async-errors';
 
 import { config } from '@/config';
-import { logger } from '@/utils/logger';
+import logger from '@/observability/logging';
 import { errorHandler } from '@/middleware/errorHandler';
 import { correlationIdMiddleware } from '@/middleware/correlationId';
 import { requestLogger } from '@/middleware/requestLogger';
 import { auditRoutes } from '@/routes/audit.routes';
 import { DatabaseService } from '@/services/database';
-import { RedisService } from '@/services/redis';
 import { health, readiness, liveness, metrics, setServices } from '@/controllers/operational.controller';
+import { initializeMessageBroker, closeMessageBroker } from '@/messaging';
 
 class AuditServiceApp {
   public app: express.Application;
   private databaseService: DatabaseService;
-  private redisService: RedisService;
 
   constructor() {
     this.app = express();
     this.databaseService = new DatabaseService();
-    this.redisService = new RedisService();
 
     this.initializeMiddleware();
     this.initializeRoutes();
@@ -128,11 +126,11 @@ class AuditServiceApp {
       // Initialize database connection
       await this.databaseService.initialize();
 
-      // Initialize Redis connection
-      await this.redisService.initialize();
+      // Initialize message broker and start consuming events
+      await initializeMessageBroker();
 
       // Inject initialized services into operational controller
-      setServices(this.databaseService, this.redisService);
+      setServices(this.databaseService);
     } catch (error) {
       logger.error('Failed to initialize services:', error);
       throw error;
@@ -147,7 +145,6 @@ class AuditServiceApp {
         logger.info(`🚀 Audit Service listening on ${config.host}:${config.port}`);
         logger.info(`📖 Environment: ${config.env}`);
         logger.info(`🗄️ Database: ${config.database.host}:${config.database.port}/${config.database.name}`);
-        logger.info(`🔴 Redis: ${config.redis.host}:${config.redis.port}`);
 
         if (config.metrics.enabled) {
           logger.info(`📊 Metrics available at http://${config.host}:${config.port}/metrics`);
@@ -170,11 +167,13 @@ class AuditServiceApp {
       logger.info('HTTP server closed');
 
       try {
+        // Close message broker connection
+        await closeMessageBroker();
+        logger.info('Message broker connection closed');
+
+        // Close database connection
         await this.databaseService.close();
         logger.info('Database connection closed');
-
-        await this.redisService.close();
-        logger.info('Redis connection closed');
 
         logger.info('Graceful shutdown completed');
         process.exit(0);

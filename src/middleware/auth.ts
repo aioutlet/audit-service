@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { config } from '@/config';
-import { logger } from '@/utils/logger';
+import logger from '@/observability/logging';
 
 export interface AuthenticatedRequest extends Request {
   user?: {

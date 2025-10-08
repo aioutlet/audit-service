@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { logger } from '@/utils/logger';
+import morgan from 'morgan';
+import logger from '@/observability/logging';
 
 export const requestLogger = (req: Request, res: Response, next: NextFunction): void => {
   const start = Date.now();

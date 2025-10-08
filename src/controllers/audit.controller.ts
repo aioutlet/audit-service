@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { DatabaseService } from '@/services/database';
-import { logger } from '@/utils/logger';
+import logger from '@/observability/logging';
 import { AuthenticatedRequest } from '@/middleware/auth';
 import {
   AuditLog,
