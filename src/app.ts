@@ -2,7 +2,6 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
-import rateLimit from 'express-rate-limit';
 import morgan from 'morgan';
 import 'express-async-errors';
 
@@ -52,21 +51,6 @@ class AuditServiceApp {
 
     // Compression
     this.app.use(compression());
-
-    // Rate limiting
-    if (config.rateLimit.enabled) {
-      const limiter = rateLimit({
-        windowMs: config.rateLimit.windowMs,
-        max: config.rateLimit.maxRequests,
-        message: {
-          error: 'Too many requests from this IP',
-          retryAfter: Math.ceil(config.rateLimit.windowMs / 1000),
-        },
-        standardHeaders: true,
-        legacyHeaders: false,
-      });
-      this.app.use('/api/', limiter);
-    }
 
     // Request parsing
     this.app.use(express.json({ limit: '10mb' }));
