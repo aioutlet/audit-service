@@ -99,6 +99,7 @@ class Logger {
         new winston.transports.Console({
           format: this.config.format === 'json' ? createJsonFormat(this.config) : createConsoleFormat(this.config),
           level: this.config.logLevel.toLowerCase(),
+          stderrLevels: ['error'],
         })
       );
     }

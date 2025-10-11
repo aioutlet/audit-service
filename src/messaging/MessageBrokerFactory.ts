@@ -5,6 +5,7 @@
 
 import { IMessageBroker } from './IMessageBroker.js';
 import { RabbitMQBroker } from './brokers/RabbitMQBroker.js';
+import logger from '../observability/logging/index.js';
 
 export type MessageBrokerType = 'rabbitmq' | 'kafka' | 'sqs';
 
@@ -15,7 +16,7 @@ export class MessageBrokerFactory {
       process.env.MESSAGE_BROKER_URL || process.env.RABBITMQ_URL || 'amqp://admin:admin@localhost:5672/';
     const queueName = process.env.MESSAGE_BROKER_QUEUE || 'audit-service.queue';
 
-    console.log(`🏭 Creating message broker: ${brokerType}`);
+    logger.info(`🏭 Creating message broker: ${brokerType}`);
 
     switch (brokerType) {
       case 'rabbitmq':

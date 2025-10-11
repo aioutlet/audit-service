@@ -5,6 +5,7 @@
 import * as amqp from 'amqplib';
 import { IMessageBroker, EventMessage, EventHandler } from '../IMessageBroker.js';
 import { databaseService, initializeServices } from '../../services/index.js';
+import logger from '../../observability/logging/index.js';
 
 export class RabbitMQBroker implements IMessageBroker {
   private connection: any = null;
@@ -22,33 +23,35 @@ export class RabbitMQBroker implements IMessageBroker {
   async connect(): Promise<void> {
     try {
       // Initialize database services first
-      console.log('🔧 Initializing database services...');
+      logger.info('🔧 Initializing database services...');
       await initializeServices();
-      console.log('✅ Database services initialized');
+      logger.info('✅ Database services initialized');
 
-      console.log('🔌 Connecting to RabbitMQ:', this.brokerUrl.replace(/\/\/.*@/, '//***@'));
+      logger.info('✅ Database services initialized');
+
+      logger.info('🔌 Connecting to RabbitMQ: ' + this.brokerUrl.replace(/\/\/.*@/, '//***@'));
 
       this.connection = await amqp.connect(this.brokerUrl);
       this.channel = await this.connection.createChannel();
 
       // Setup connection error handlers
       this.connection.on('error', (err: any) => {
-        console.error('❌ RabbitMQ connection error:', err);
+        logger.error('❌ RabbitMQ connection error: ' + err.message, { error: err });
         this.isConnected = false;
       });
 
       this.connection.on('close', () => {
-        console.log('🔌 RabbitMQ connection closed');
+        logger.info('🔌 RabbitMQ connection closed');
         this.isConnected = false;
       });
 
       this.isConnected = true;
-      console.log('✅ Connected to RabbitMQ successfully');
+      logger.info('✅ Connected to RabbitMQ successfully');
 
       // Setup exchanges and queues
       await this.setupInfrastructure();
     } catch (error) {
-      console.error('❌ Failed to connect to RabbitMQ:', error);
+      logger.error('❌ Failed to connect to RabbitMQ: ' + (error as Error).message, { error });
       this.isConnected = false;
       throw error;
     }
@@ -73,9 +76,9 @@ export class RabbitMQBroker implements IMessageBroker {
       // Note: Queue bindings are already set up by infrastructure scripts
       // audit-service.queue is bound to '#' (all events)
 
-      console.log('✅ RabbitMQ infrastructure ready');
+      logger.info('✅ RabbitMQ infrastructure ready');
     } catch (error) {
-      console.error('❌ Failed to setup RabbitMQ infrastructure:', error);
+      logger.error('❌ Failed to setup RabbitMQ infrastructure: ' + (error as Error).message, { error });
       throw error;
     }
   }
@@ -95,7 +98,7 @@ export class RabbitMQBroker implements IMessageBroker {
 
           try {
             const eventData: EventMessage = JSON.parse(message.content.toString());
-            console.log(`📨 Received event: ${eventData.eventType}`, {
+            logger.debug(`📨 Received event: ${eventData.eventType}`, {
               eventId: eventData.eventId,
               source: eventData.source,
             });
@@ -106,7 +109,7 @@ export class RabbitMQBroker implements IMessageBroker {
             // Acknowledge the message
             this.channel!.ack(message);
           } catch (error) {
-            console.error('❌ Error processing message:', error);
+            logger.error('❌ Error processing message: ' + (error as Error).message, { error });
 
             // Reject and requeue the message (could implement retry logic)
             this.channel!.nack(message, false, false);
@@ -117,9 +120,9 @@ export class RabbitMQBroker implements IMessageBroker {
         }
       );
 
-      console.log(`👂 Audit service listening for events on queue: ${this.queueName}`);
+      logger.info(`👂 Audit service listening for events on queue: ${this.queueName}`);
     } catch (error) {
-      console.error('❌ Failed to start consuming:', error);
+      logger.error('❌ Failed to start consuming: ' + (error as Error).message, { error });
       throw error;
     }
   }
@@ -155,7 +158,7 @@ export class RabbitMQBroker implements IMessageBroker {
     };
 
     // Here you would typically save to your audit database
-    console.log('📝 Audit entry created:', auditEntry);
+    logger.debug('📝 Audit entry created', { auditEntry });
 
     // TODO: Save to database
     // await this.auditRepository.save(auditEntry);
@@ -163,7 +166,7 @@ export class RabbitMQBroker implements IMessageBroker {
 
   registerEventHandler(eventType: string, handler: EventHandler): void {
     this.eventHandlers.set(eventType, handler);
-    console.log(`✅ Event handler registered for: ${eventType}`);
+    logger.info(`✅ Event handler registered for: ${eventType}`);
   }
 
   async close(): Promise<void> {
@@ -175,9 +178,9 @@ export class RabbitMQBroker implements IMessageBroker {
         await this.connection.close();
       }
       this.isConnected = false;
-      console.log('👋 RabbitMQ connection closed gracefully');
+      logger.info('👋 RabbitMQ connection closed gracefully');
     } catch (error) {
-      console.error('❌ Error closing RabbitMQ connection:', error);
+      logger.error('❌ Error closing RabbitMQ connection: ' + (error as Error).message, { error });
     }
   }
 
