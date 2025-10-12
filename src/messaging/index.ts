@@ -11,6 +11,16 @@ import logger from '@/observability/logging';
  * Initialize message broker and start consuming events
  */
 export async function initializeMessageBroker(): Promise<void> {
+  // Skip message broker initialization if not configured
+  // Audit service should use HTTP endpoints to receive audit events instead
+  const brokerUrl = process.env.MESSAGE_BROKER_URL || process.env.RABBITMQ_URL;
+
+  if (!brokerUrl) {
+    logger.warn('⚠️  Message broker not configured - skipping initialization');
+    logger.info('💡 Audit service will receive events via HTTP endpoints');
+    return;
+  }
+
   try {
     logger.info('🔌 Initializing message broker connection...');
 
