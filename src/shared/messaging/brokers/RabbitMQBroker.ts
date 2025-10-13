@@ -61,7 +61,9 @@ export class RabbitMQBroker implements IMessageBroker {
         durable: true,
         arguments: {
           'x-dead-letter-exchange': 'aioutlet.dlx',
-          'x-message-ttl': 300000, // 5 minutes
+          'x-message-ttl': 86400000, // 24 hours
+          'x-max-length': 100000, // Maximum queue length
+          'x-overflow': 'reject-publish', // Reject new messages when queue is full
         },
       });
 
