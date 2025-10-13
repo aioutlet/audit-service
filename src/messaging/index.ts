@@ -4,7 +4,7 @@
  */
 
 import messageBroker from './messageBroker.js';
-import { handleAuditEvent } from './eventHandlers.js';
+import * as handlers from './handlers/index.js';
 import logger from '@/observability/logging';
 
 /**
@@ -28,10 +28,34 @@ export async function initializeMessageBroker(): Promise<void> {
     await messageBroker.connect();
     logger.info('✅ Message broker connected successfully');
 
-    // Register the generic event handler for ALL event types
-    // Using '*' or a wildcard pattern to handle all events
-    messageBroker.registerEventHandler('*', handleAuditEvent);
-    logger.info('📝 Generic audit event handler registered for all event types');
+    // Register specific event handlers following single responsibility principle
+    // Auth event handlers
+    messageBroker.registerEventHandler('auth.user.registered', handlers.handleUserRegistered);
+    messageBroker.registerEventHandler('auth.login', handlers.handleUserLogin);
+    messageBroker.registerEventHandler('auth.email.verification.requested', handlers.handleEmailVerificationRequested);
+    messageBroker.registerEventHandler('auth.password.reset.requested', handlers.handlePasswordResetRequested);
+    messageBroker.registerEventHandler('auth.password.reset.completed', handlers.handlePasswordResetCompleted);
+    messageBroker.registerEventHandler(
+      'auth.account.reactivation.requested',
+      handlers.handleAccountReactivationRequested
+    );
+
+    // User event handlers
+    messageBroker.registerEventHandler('user.user.created', handlers.handleUserCreated);
+    messageBroker.registerEventHandler('user.user.updated', handlers.handleUserUpdated);
+    messageBroker.registerEventHandler('user.user.deleted', handlers.handleUserDeleted);
+    messageBroker.registerEventHandler('user.email.verified', handlers.handleEmailVerified);
+    messageBroker.registerEventHandler('user.password.changed', handlers.handlePasswordChanged);
+
+    // Order and Payment event handlers
+    messageBroker.registerEventHandler('order.placed', handlers.handleOrderPlaced);
+    messageBroker.registerEventHandler('order.cancelled', handlers.handleOrderCancelled);
+    messageBroker.registerEventHandler('order.delivered', handlers.handleOrderDelivered);
+    messageBroker.registerEventHandler('payment.received', handlers.handlePaymentReceived);
+    messageBroker.registerEventHandler('payment.failed', handlers.handlePaymentFailed);
+
+    logger.info('📝 Specific event handlers registered successfully');
+    logger.info('📋 Registered handlers: auth (6), user (5), order (3), payment (2)');
 
     // Start consuming messages
     await messageBroker.startConsuming();
