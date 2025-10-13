@@ -23,14 +23,11 @@
     "baseUrl": "./",
     "paths": {
       "@/*": ["src/*"],
-      "@/config/*": ["src/config/*"],
-      "@/controllers/*": ["src/controllers/*"],
-      "@/middleware/*": ["src/middleware/*"],
-      "@/models/*": ["src/models/*"],
-      "@/routes/*": ["src/routes/*"],
-      "@/services/*": ["src/services/*"],
-      "@/utils/*": ["src/utils/*"],
-      "@/types/*": ["src/types/*"]
+      "@/config/*": ["src/shared/config/*"],
+      "@/observability/*": ["src/shared/observability/*"],
+      "@/messaging/*": ["src/shared/messaging/*"],
+      "@/types/*": ["src/shared/types/*"],
+      "@/utils/*": ["src/shared/utils/*"]
     },
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,

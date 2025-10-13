@@ -2,7 +2,7 @@ export default {
   preset: 'ts-jest',
   testEnvironment: 'node',
   extensionsToTreatAsEsm: ['.ts'],
-  roots: ['<rootDir>/src'],
+  roots: ['<rootDir>/tests'],
   testMatch: ['**/__tests__/**/*.ts', '**/?(*.)+(spec|test).ts'],
   transform: {
     '^.+\\.ts$': [
@@ -13,16 +13,24 @@ export default {
       },
     ],
   },
-  collectCoverageFrom: ['src/**/*.ts', '!src/**/*.d.ts', '!src/index.ts', '!src/config/**', '!src/types/**'],
+  collectCoverageFrom: [
+    'src/**/*.ts',
+    '!src/**/*.d.ts',
+    '!src/consumer.ts',
+    '!src/shared/config/**',
+    '!src/shared/types/**',
+    '!src/shared/observability/**',
+    '!src/shared/messaging/**',
+  ],
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'html'],
-  setupFilesAfterEnv: ['<rootDir>/src/__tests__/setup.ts'],
+  setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
     '^(\\.{1,2}/.*)\\.js$': '$1',
   },
   testTimeout: 10000,
   clearMocks: true,
-  resetMocks: true,
-  restoreMocks: true,
+  resetMocks: false,
+  restoreMocks: false,
 };

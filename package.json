@@ -1,23 +1,20 @@
 {
   "name": "audit-service",
   "version": "1.0.0",
-  "description": "High-performance audit logging microservice for AI Outlet platform",
-  "main": "dist/index.js",
+  "description": "Event-driven audit logging consumer for AI Outlet platform",
+  "main": "dist/consumer.js",
   "type": "module",
   "scripts": {
     "build": "tsc && tsc-alias -p tsconfig.json",
-    "start": "node dist/index.js",
-    "dev": "nodemon --exec tsx src/index.ts",
+    "start": "node dist/consumer.js",
+    "dev": "nodemon --exec tsx src/consumer.ts",
     "test": "jest",
     "test:watch": "jest --watch",
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix",
     "format": "prettier --write \"src/**/*.ts\"",
     "docker:build": "docker build -t audit-service .",
-    "docker:run": "docker-compose up -d",
-    "db:setup": "node database/scripts/setup.js",
-    "db:seed": "node database/scripts/seed.js",
-    "db:clear": "node database/scripts/clear.js"
+    "docker:run": "docker-compose up -d"
   },
   "dependencies": {
     "@opentelemetry/api": "^1.9.0",

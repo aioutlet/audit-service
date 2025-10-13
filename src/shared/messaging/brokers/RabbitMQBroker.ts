@@ -4,7 +4,6 @@
 
 import * as amqp from 'amqplib';
 import { IMessageBroker, EventMessage, EventHandler } from '../IMessageBroker.js';
-import { databaseService, initializeServices } from '../../services/index.js';
 import logger from '../../observability/logging/index.js';
 
 export class RabbitMQBroker implements IMessageBroker {
@@ -22,13 +21,6 @@ export class RabbitMQBroker implements IMessageBroker {
 
   async connect(): Promise<void> {
     try {
-      // Initialize database services first
-      logger.info('🔧 Initializing database services...');
-      await initializeServices();
-      logger.info('✅ Database services initialized');
-
-      logger.info('✅ Database services initialized');
-
       logger.info('🔌 Connecting to RabbitMQ: ' + this.brokerUrl.replace(/\/\/.*@/, '//***@'));
 
       this.connection = await amqp.connect(this.brokerUrl);
