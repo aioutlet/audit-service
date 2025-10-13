@@ -1,4 +1,4 @@
-import { AuditLog, AuditLogSearchParams } from '@/types';
+import { AuditLog, AuditLogSearchParams } from '../types/index.js';
 
 /**
  * Utility functions for audit log operations
