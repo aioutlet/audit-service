@@ -106,17 +106,17 @@ export const config: Config = {
   host: getEnv('HOST', '0.0.0.0'),
 
   database: {
-    host: getEnv('DB_HOST', 'localhost'),
-    port: getEnvNumber('DB_PORT', 5432),
-    name: getEnv('DB_NAME', 'audit_service'),
-    user: getEnv('DB_USER', 'postgres'),
-    password: getEnv('DB_PASSWORD', 'password'),
+    host: getEnv('POSTGRES_HOST', 'localhost'),
+    port: getEnvNumber('POSTGRES_PORT', 5432),
+    name: getEnv('POSTGRES_DB', 'audit_service_db'),
+    user: getEnv('POSTGRES_USER', 'postgres'),
+    password: getEnv('POSTGRES_PASSWORD', 'password'),
     ssl: getEnvBoolean('DB_SSL', false),
     poolMin: getEnvNumber('DB_POOL_MIN', 5),
     poolMax: getEnvNumber('DB_POOL_MAX', 20),
     url: (() => {
       const databaseUrl = process.env.DATABASE_URL;
-      const constructedUrl = `postgresql://${getEnv('DB_USER', 'postgres')}:${getEnv('DB_PASSWORD', 'password')}@${getEnv('DB_HOST', 'localhost')}:${getEnvNumber('DB_PORT', 5432)}/${getEnv('DB_NAME', 'audit_service')}`;
+      const constructedUrl = `postgresql://${getEnv('POSTGRES_USER', 'postgres')}:${getEnv('POSTGRES_PASSWORD', 'password')}@${getEnv('POSTGRES_HOST', 'localhost')}:${getEnvNumber('POSTGRES_PORT', 5432)}/${getEnv('POSTGRES_DB', 'audit_service_db')}`;
       return databaseUrl || constructedUrl;
     })(),
   },
