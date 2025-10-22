@@ -99,9 +99,9 @@ export class AuditLogService {
       correlationId: event.metadata?.correlationId || event.eventId || 'unknown',
       eventType,
       eventAction,
-      serviceName: event.source || 'unknown-service',
-      userId: event.data.userId || additionalData.userId,
-      resourceId: event.data.resourceId || additionalData.resourceId || event.data.userId,
+      serviceName: event.source || additionalData.serviceName || 'unknown-service',
+      userId: additionalData.userId || event.data.createdBy || event.data.updatedBy || null,
+      resourceId: additionalData.resourceId || event.data.userId || event.data.resourceId,
       resourceType: additionalData.resourceType || 'unknown',
       eventData: {
         eventId: event.eventId,

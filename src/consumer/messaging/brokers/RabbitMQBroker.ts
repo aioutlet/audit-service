@@ -94,12 +94,14 @@ export class RabbitMQBroker implements IMessageBroker {
             const rawMessage = JSON.parse(message.content.toString());
 
             // Transform message broker service format to EventMessage format
+            // The rawMessage structure from message broker service is:
+            // { id, topic, data: {userId, email, ...}, metadata: {source}, timestamp, correlationId }
             const eventData: EventMessage = {
               eventId: rawMessage.id || 'unknown',
               eventType: rawMessage.topic || 'unknown',
               timestamp: rawMessage.timestamp || new Date().toISOString(),
               source: rawMessage.metadata?.source || 'unknown',
-              data: rawMessage.data || {},
+              data: rawMessage.data || {}, // User data is directly in rawMessage.data
               metadata: {
                 correlationId: rawMessage.correlationId || '',
                 version: '1.0',

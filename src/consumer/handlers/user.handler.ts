@@ -18,7 +18,10 @@ export const handleUserCreated: EventHandler = async (event: EventMessage) => {
     // Write structured audit log to database
     await auditLogService.writeAuditLogFromEvent('user', 'created', event, {
       resourceType: 'user',
-      resourceId: event.data.userId,
+      resourceId: event.data.userId, // Clean, consistent access
+      userId: event.data.createdBy || null,
+      ipAddress: event.data.ipAddress || null,
+      userAgent: event.data.userAgent || null,
       eventData: {
         email: event.data.email,
         firstName: event.data.firstName,
@@ -62,17 +65,21 @@ export const handleUserUpdated: EventHandler = async (event: EventMessage) => {
   trackMessageProcessed();
 
   try {
+    // Extract the user ID consistently
+    const userId = event.data.userId;
+
     // Write structured audit log to database
     await auditLogService.writeAuditLogFromEvent('user', 'updated', event, {
       resourceType: 'user',
-      resourceId: event.data.userId,
+      resourceId: userId,
+      userId: event.data.updatedBy || null,
+      ipAddress: event.data.ipAddress || null,
+      userAgent: event.data.userAgent || null,
       eventData: {
         updatedFields: event.data.updatedFields,
         updatedBy: event.data.updatedBy,
       },
-    });
-
-    // Also log to file for immediate visibility
+    }); // Also log to file for immediate visibility
     logger.business('USER_UPDATED', {
       eventId: event.eventId,
       userId: event.data.userId,
@@ -102,17 +109,19 @@ export const handleUserDeleted: EventHandler = async (event: EventMessage) => {
   trackMessageProcessed();
 
   try {
+    // Extract the user ID consistently
+    const userId = event.data.userId;
+
     // Write structured audit log to database
     await auditLogService.writeAuditLogFromEvent('user', 'deleted', event, {
       resourceType: 'user',
-      resourceId: event.data.userId,
+      resourceId: userId,
+      userId: event.data.deletedBy || null,
       eventData: {
         deletedBy: event.data.deletedBy,
         reason: event.data.reason,
       },
-    });
-
-    // Also log to file for immediate visibility
+    }); // Also log to file for immediate visibility
     logger.security('USER_DELETED', {
       eventId: event.eventId,
       userId: event.data.userId,
