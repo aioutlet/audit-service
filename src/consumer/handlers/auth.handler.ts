@@ -3,9 +3,9 @@
  * Handles authentication-related events by writing structured audit logs
  */
 
-import { EventMessage, EventHandler } from '../shared/messaging/messageBroker.js';
-import logger from '../shared/observability/logging/index.js';
-import { trackMessageProcessed } from '../consumer.js';
+import { EventMessage, EventHandler } from '../messaging/messageBroker.js';
+import logger from '../observability/logging/index.js';
+import { trackMessageProcessed } from '../server.js';
 
 /**
  * Handle user registration events

@@ -91,10 +91,25 @@ export class RabbitMQBroker implements IMessageBroker {
           if (!message) return;
 
           try {
-            const eventData: EventMessage = JSON.parse(message.content.toString());
+            const rawMessage = JSON.parse(message.content.toString());
+
+            // Transform message broker service format to EventMessage format
+            const eventData: EventMessage = {
+              eventId: rawMessage.id || 'unknown',
+              eventType: rawMessage.topic || 'unknown',
+              timestamp: rawMessage.timestamp || new Date().toISOString(),
+              source: rawMessage.metadata?.source || 'unknown',
+              data: rawMessage.data || {},
+              metadata: {
+                correlationId: rawMessage.correlationId || '',
+                version: '1.0',
+              },
+            };
+
             logger.debug(`📨 Received event: ${eventData.eventType}`, {
               eventId: eventData.eventId,
               source: eventData.source,
+              correlationId: eventData.metadata.correlationId,
             });
 
             // Process the event

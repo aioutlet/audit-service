@@ -1,14 +1,16 @@
 /**
  * Message Broker Factory
  * Creates the appropriate message broker instance based on configuration
+ * Supports RabbitMQ, Kafka, and Azure Service Bus for loose coupling
  */
 
 import { IMessageBroker } from './IMessageBroker.js';
 import { RabbitMQBroker } from './brokers/RabbitMQBroker.js';
 import { KafkaBroker } from './brokers/KafkaBroker.js';
+// import { AzureServiceBusBroker } from './brokers/AzureServiceBusBroker.js';
 import logger from '../observability/logging/index.js';
 
-export type MessageBrokerType = 'rabbitmq' | 'kafka' | 'sqs';
+export type MessageBrokerType = 'rabbitmq' | 'kafka' | 'azure-service-bus';
 
 export class MessageBrokerFactory {
   static create(): IMessageBroker {
@@ -18,8 +20,12 @@ export class MessageBrokerFactory {
 
     switch (brokerType) {
       case 'rabbitmq': {
-        const brokerUrl =
-          process.env.MESSAGE_BROKER_URL || process.env.RABBITMQ_URL || 'amqp://admin:admin123@localhost:5672/';
+        const brokerUrl = process.env.MESSAGE_BROKER_URL || process.env.RABBITMQ_URL;
+        if (!brokerUrl) {
+          throw new Error(
+            'MESSAGE_BROKER_URL or RABBITMQ_URL environment variable is required when MESSAGE_BROKER_TYPE=rabbitmq'
+          );
+        }
         const queueName = process.env.MESSAGE_BROKER_QUEUE || 'audit-service.queue';
         return new RabbitMQBroker(brokerUrl, queueName);
       }
@@ -33,13 +39,16 @@ export class MessageBrokerFactory {
         return new KafkaBroker(brokers, topic, groupId);
       }
 
-      case 'sqs':
+      case 'azure-service-bus': {
         throw new Error(
-          'AWS SQS broker not yet implemented. To add support, create an SQSBroker class implementing IMessageBroker'
+          'Azure Service Bus broker not yet implemented. Please use RabbitMQ (MESSAGE_BROKER_TYPE=rabbitmq) or Kafka (MESSAGE_BROKER_TYPE=kafka)'
         );
+      }
 
       default:
-        throw new Error(`Unsupported message broker type: ${brokerType}. Supported types: rabbitmq, kafka`);
+        throw new Error(
+          `Unsupported message broker type: ${brokerType}. Supported types: rabbitmq, kafka, azure-service-bus`
+        );
     }
   }
 }

@@ -8,17 +8,20 @@
  * - Minimal health server for container orchestration
  * - Message broker consumer with event handlers
  * - Structured logging via Winston
- * - Metrics via Prometheus client
  * - Distributed tracing via OpenTelemetry
+ * - Configuration validation and dependency checking
  */
 
 import express from 'express';
-import './shared/observability/logging/logger.js';
-import './shared/observability/tracing/setup.js';
-import logger from './shared/observability/logging/index.js';
-import { config } from './shared/config/index.js';
-import messageBroker from './shared/messaging/messageBroker.js';
+import './observability/logging/logger.js';
+import './observability/tracing/setup.js';
+import logger from './observability/logging/index.js';
+import { config } from './config/index.js';
+import messageBroker from './messaging/messageBroker.js';
 import * as handlers from './handlers/index.js';
+import validateConfig from './validators/config.validator.js';
+import { checkDependencyHealth, getDependencies } from './utils/dependencyHealthChecker.js';
+import { initializeDatabase, closeDatabaseConnections } from './database/index.js';
 
 // Consumer state tracking
 const consumerState = {
@@ -110,14 +113,6 @@ function initializeHealthServer(): void {
  * Initialize message broker and register event handlers
  */
 async function initializeMessageBroker(): Promise<void> {
-  const brokerUrl = process.env.MESSAGE_BROKER_URL || process.env.RABBITMQ_URL;
-
-  if (!brokerUrl) {
-    logger.warn('⚠️  Message broker not configured - consumer cannot start');
-    logger.info('💡 Set MESSAGE_BROKER_URL or RABBITMQ_URL environment variable');
-    return;
-  }
-
   try {
     logger.info('🔌 Connecting to message broker...');
 
@@ -147,16 +142,16 @@ async function initializeMessageBroker(): Promise<void> {
     );
 
     // Register user event handlers
-    messageBroker.registerEventHandler('user.user.created', handlers.handleUserCreated);
-    messageBroker.registerEventHandler('user.user.updated', handlers.handleUserUpdated);
-    messageBroker.registerEventHandler('user.user.deleted', handlers.handleUserDeleted);
+    messageBroker.registerEventHandler('user.created', handlers.handleUserCreated);
+    messageBroker.registerEventHandler('user.updated', handlers.handleUserUpdated);
+    messageBroker.registerEventHandler('user.deleted', handlers.handleUserDeleted);
     messageBroker.registerEventHandler('user.email.verified', handlers.handleEmailVerified);
     messageBroker.registerEventHandler('user.password.changed', handlers.handlePasswordChanged);
 
     consumerState.handlers.push(
-      'user.user.created',
-      'user.user.updated',
-      'user.user.deleted',
+      'user.created',
+      'user.updated',
+      'user.deleted',
       'user.email.verified',
       'user.password.changed'
     );
@@ -211,6 +206,9 @@ async function gracefulShutdown(signal: string): Promise<void> {
       logger.info('Message broker connection closed');
     }
 
+    // Close database connections
+    await closeDatabaseConnections();
+
     logger.info('✅ Graceful shutdown complete');
     process.exit(0);
   } catch (error) {
@@ -224,6 +222,31 @@ async function gracefulShutdown(signal: string): Promise<void> {
  */
 async function startConsumer(): Promise<void> {
   try {
+    // Validate configuration first
+    console.log('🔧 Validating audit-service configuration...');
+    validateConfig();
+    console.log('✅ Configuration validation completed');
+
+    // Initialize database and run migrations
+    console.log('🗃️ Initializing database and running migrations...');
+    await initializeDatabase();
+    console.log('✅ Database initialization completed');
+
+    // Check dependency health (non-blocking)
+    const dependencies = getDependencies();
+    const dependencyCount = dependencies.length;
+    if (dependencyCount > 0) {
+      console.log(`[DEPS] Found ${dependencyCount} dependencies to check`);
+      try {
+        await checkDependencyHealth();
+      } catch (error) {
+        console.error(
+          `[DEPS] ⚠️ Dependency health check failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+        );
+        console.log('[DEPS] ℹ️ Consumer will continue startup - dependencies will be checked during operation');
+      }
+    }
+
     logger.info('🚀 Starting Audit Service Consumer...');
     logger.info(`📊 Environment: ${config.env}`);
     logger.info(`📦 Version: ${config.service.version}`);
