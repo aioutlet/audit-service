@@ -171,8 +171,74 @@ async function initializeMessageBroker(): Promise<void> {
       'payment.failed'
     );
 
+    // Register product event handlers
+    messageBroker.registerEventHandler('product.created', handlers.handleProductCreated);
+    messageBroker.registerEventHandler('product.updated', handlers.handleProductUpdated);
+    messageBroker.registerEventHandler('product.deleted', handlers.handleProductDeleted);
+    messageBroker.registerEventHandler('product.price.changed', handlers.handleProductPriceChanged);
+
+    consumerState.handlers.push('product.created', 'product.updated', 'product.deleted', 'product.price.changed');
+
+    // Register cart event handlers
+    messageBroker.registerEventHandler('cart.item.added', handlers.handleCartItemAdded);
+    messageBroker.registerEventHandler('cart.item.removed', handlers.handleCartItemRemoved);
+    messageBroker.registerEventHandler('cart.cleared', handlers.handleCartCleared);
+    messageBroker.registerEventHandler('cart.abandoned', handlers.handleCartAbandoned);
+
+    consumerState.handlers.push('cart.item.added', 'cart.item.removed', 'cart.cleared', 'cart.abandoned');
+
+    // Register inventory event handlers
+    messageBroker.registerEventHandler('inventory.stock.updated', handlers.handleInventoryStockUpdated);
+    messageBroker.registerEventHandler('inventory.restock', handlers.handleInventoryRestock);
+    messageBroker.registerEventHandler('inventory.low.stock.alert', handlers.handleInventoryLowStockAlert);
+    messageBroker.registerEventHandler('inventory.reserved', handlers.handleInventoryReserved);
+
+    consumerState.handlers.push(
+      'inventory.stock.updated',
+      'inventory.restock',
+      'inventory.low.stock.alert',
+      'inventory.reserved'
+    );
+
+    // Register review event handlers
+    messageBroker.registerEventHandler('review.created', handlers.handleReviewCreated);
+    messageBroker.registerEventHandler('review.updated', handlers.handleReviewUpdated);
+    messageBroker.registerEventHandler('review.deleted', handlers.handleReviewDeleted);
+    messageBroker.registerEventHandler('review.moderated', handlers.handleReviewModerated);
+    messageBroker.registerEventHandler('review.flagged', handlers.handleReviewFlagged);
+
+    consumerState.handlers.push(
+      'review.created',
+      'review.updated',
+      'review.deleted',
+      'review.moderated',
+      'review.flagged'
+    );
+
+    // Register notification event handlers
+    messageBroker.registerEventHandler('notification.sent', handlers.handleNotificationSent);
+    messageBroker.registerEventHandler('notification.delivered', handlers.handleNotificationDelivered);
+    messageBroker.registerEventHandler('notification.failed', handlers.handleNotificationFailed);
+    messageBroker.registerEventHandler('notification.opened', handlers.handleNotificationOpened);
+
+    consumerState.handlers.push(
+      'notification.sent',
+      'notification.delivered',
+      'notification.failed',
+      'notification.opened'
+    );
+
+    // Register admin event handlers
+    messageBroker.registerEventHandler('admin.action.performed', handlers.handleAdminActionPerformed);
+    messageBroker.registerEventHandler('admin.user.created', handlers.handleAdminUserCreated);
+    messageBroker.registerEventHandler('admin.config.changed', handlers.handleAdminConfigChanged);
+
+    consumerState.handlers.push('admin.action.performed', 'admin.user.created', 'admin.config.changed');
+
     logger.info('📝 Event handlers registered successfully');
-    logger.info(`📋 Registered ${consumerState.handlers.length} handlers: auth (6), user (5), order (3), payment (2)`);
+    logger.info(
+      `📋 Registered ${consumerState.handlers.length} handlers: auth (6), user (5), order (5), product (4), cart (4), inventory (4), review (5), notification (4), admin (3)`
+    );
 
     // Start consuming messages
     await messageBroker.startConsuming();

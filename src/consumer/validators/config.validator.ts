@@ -74,19 +74,19 @@ const validationRules: Record<string, ValidationRule> = {
   },
   SERVICE_NAME: {
     required: true,
-    validator: (value) => value && value.length > 0,
+    validator: (value) => Boolean(value && value.length > 0),
     errorMessage: 'SERVICE_NAME must be a non-empty string',
   },
   SERVICE_VERSION: {
     required: true,
-    validator: (value) => value && /^\d+\.\d+\.\d+/.test(value),
+    validator: (value) => Boolean(value && /^\d+\.\d+\.\d+/.test(value)),
     errorMessage: 'SERVICE_VERSION must be in semantic version format (e.g., 1.0.0)',
   },
 
   // Database Configuration
   POSTGRES_HOST: {
     required: true,
-    validator: (value) => value && value.length > 0,
+    validator: (value) => Boolean(value && value.length > 0),
     errorMessage: 'POSTGRES_HOST must be a non-empty string',
   },
   POSTGRES_PORT: {
@@ -96,17 +96,17 @@ const validationRules: Record<string, ValidationRule> = {
   },
   POSTGRES_DB: {
     required: true,
-    validator: (value) => value && value.length > 0,
+    validator: (value) => Boolean(value && value.length > 0),
     errorMessage: 'POSTGRES_DB must be a non-empty string',
   },
   POSTGRES_USER: {
     required: true,
-    validator: (value) => value && value.length > 0,
+    validator: (value) => Boolean(value && value.length > 0),
     errorMessage: 'POSTGRES_USER must be a non-empty string',
   },
   POSTGRES_PASSWORD: {
     required: true,
-    validator: (value) => value && value.length > 0,
+    validator: (value) => Boolean(value && value.length > 0),
     errorMessage: 'POSTGRES_PASSWORD must be a non-empty string',
   },
   DB_SSL: {
@@ -239,7 +239,7 @@ const validateConfig = (): void => {
           errorMessage: 'MESSAGE_BROKER_URL must be a valid AMQP connection string (amqp://...)',
         },
         MESSAGE_BROKER_QUEUE: {
-          validator: (value: string) => value && value.length > 0,
+          validator: (value: string) => Boolean(value && value.length > 0),
           errorMessage: 'MESSAGE_BROKER_QUEUE must be a non-empty string',
         },
       };
@@ -255,15 +255,15 @@ const validateConfig = (): void => {
     } else if (brokerType === 'kafka') {
       const kafkaVars = {
         KAFKA_BROKERS: {
-          validator: (value: string) => value && value.includes(':'),
+          validator: (value: string) => Boolean(value && value.includes(':')),
           errorMessage: 'KAFKA_BROKERS must be comma-separated host:port pairs',
         },
         KAFKA_TOPIC: {
-          validator: (value: string) => value && value.length > 0,
+          validator: (value: string) => Boolean(value && value.length > 0),
           errorMessage: 'KAFKA_TOPIC must be a non-empty string',
         },
         KAFKA_GROUP_ID: {
-          validator: (value: string) => value && value.length > 0,
+          validator: (value: string) => Boolean(value && value.length > 0),
           errorMessage: 'KAFKA_GROUP_ID must be a non-empty string',
         },
       };
@@ -279,15 +279,16 @@ const validateConfig = (): void => {
     } else if (brokerType === 'azure-service-bus') {
       const azureVars = {
         AZURE_SERVICE_BUS_CONNECTION_STRING: {
-          validator: (value: string) => value && value.includes('Endpoint=') && value.includes('SharedAccessKey='),
+          validator: (value: string) =>
+            Boolean(value && value.includes('Endpoint=') && value.includes('SharedAccessKey=')),
           errorMessage: 'AZURE_SERVICE_BUS_CONNECTION_STRING must be a valid Azure Service Bus connection string',
         },
         AZURE_SERVICE_BUS_TOPIC: {
-          validator: (value: string) => value && value.length > 0,
+          validator: (value: string) => Boolean(value && value.length > 0),
           errorMessage: 'AZURE_SERVICE_BUS_TOPIC must be a non-empty string',
         },
         AZURE_SERVICE_BUS_SUBSCRIPTION: {
-          validator: (value: string) => value && value.length > 0,
+          validator: (value: string) => Boolean(value && value.length > 0),
           errorMessage: 'AZURE_SERVICE_BUS_SUBSCRIPTION must be a non-empty string',
         },
       };
