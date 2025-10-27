@@ -36,7 +36,7 @@
     "morgan": "^1.10.0",
     "pg": "^8.11.3",
     "prom-client": "^15.1.0",
-    "redis": "^4.6.11",
+    "redis": "^5.9.0",
     "swagger-ui-express": "^5.0.0",
     "tsc-alias": "^1.8.16",
     "uuid": "^9.0.1",
