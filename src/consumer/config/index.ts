@@ -152,8 +152,8 @@ export const config: Config = {
   },
 
   service: {
-    name: getEnv('SERVICE_NAME', 'audit-service'),
-    version: getEnv('SERVICE_VERSION', '1.0.0'),
+    name: getEnv('NAME', 'audit-service'),
+    version: getEnv('VERSION', '1.0.0'),
     correlationIdHeader: getEnv('CORRELATION_ID_HEADER', 'x-correlation-id'),
   },
 

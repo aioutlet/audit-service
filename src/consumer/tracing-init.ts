@@ -18,7 +18,7 @@ if (enableTracing) {
         url: process.env.OTEL_EXPORTER_OTLP_ENDPOINT || 'http://localhost:4318/v1/traces',
         headers: {},
       }),
-      serviceName: process.env.SERVICE_NAME || process.env.OTEL_SERVICE_NAME || 'audit-service',
+      serviceName: process.env.NAME || process.env.OTEL_SERVICE_NAME || 'audit-service',
       instrumentations: [
         getNodeAutoInstrumentations({
           // Disable file system instrumentation that can be noisy

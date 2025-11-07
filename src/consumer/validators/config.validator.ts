@@ -72,15 +72,15 @@ const validationRules: Record<string, ValidationRule> = {
     validator: (value) => isValidPort(value),
     errorMessage: 'PORT must be a valid port number (1-65535)',
   },
-  SERVICE_NAME: {
+  NAME: {
     required: true,
     validator: (value) => Boolean(value && value.length > 0),
-    errorMessage: 'SERVICE_NAME must be a non-empty string',
+    errorMessage: 'NAME must be a non-empty string',
   },
-  SERVICE_VERSION: {
+  VERSION: {
     required: true,
     validator: (value) => Boolean(value && /^\d+\.\d+\.\d+/.test(value)),
-    errorMessage: 'SERVICE_VERSION must be in semantic version format (e.g., 1.0.0)',
+    errorMessage: 'VERSION must be in semantic version format (e.g., 1.0.0)',
   },
 
   // Database Configuration

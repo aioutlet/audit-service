@@ -5,8 +5,8 @@
 
 // Mock environment variables
 process.env.NODE_ENV = 'test';
-process.env.SERVICE_NAME = 'audit-service';
-process.env.SERVICE_VERSION = '1.0.0';
+process.env.NAME = 'audit-service';
+process.env.VERSION = '1.0.0';
 process.env.LOG_LEVEL = 'error';
 process.env.LOG_TO_CONSOLE = 'false';
 process.env.LOG_TO_FILE = 'false';
