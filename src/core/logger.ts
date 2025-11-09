@@ -59,6 +59,22 @@ class Logger {
   audit(event: string, meta?: any): void {
     winstonLogger.info(event, { ...meta, eventType: 'audit' });
   }
+
+  /**
+   * Create a logger bound to a trace context (traceId and spanId)
+   */
+  withTraceContext(traceId: string, spanId?: string) {
+    const traceMetadata = { traceId, ...(spanId && { spanId }) };
+    return {
+      debug: (message: string, metadata?: any) => this.debug(message, { ...metadata, ...traceMetadata }),
+      info: (message: string, metadata?: any) => this.info(message, { ...metadata, ...traceMetadata }),
+      warn: (message: string, metadata?: any) => this.warn(message, { ...metadata, ...traceMetadata }),
+      error: (message: string, metadata?: any) => this.error(message, { ...metadata, ...traceMetadata }),
+      business: (event: string, metadata?: any) => this.business(event, { ...metadata, ...traceMetadata }),
+      security: (event: string, metadata?: any) => this.security(event, { ...metadata, ...traceMetadata }),
+      audit: (event: string, metadata?: any) => this.audit(event, { ...metadata, ...traceMetadata }),
+    };
+  }
 }
 
 const logger = new Logger();

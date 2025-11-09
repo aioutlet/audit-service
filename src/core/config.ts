@@ -48,7 +48,6 @@ interface AuditConfig {
 interface ServiceConfig {
   name: string;
   version: string;
-  correlationIdHeader: string;
 }
 
 interface AuthConfig {
@@ -154,7 +153,6 @@ export const config: Config = {
   service: {
     name: getEnv('NAME', 'audit-service'),
     version: getEnv('VERSION', '1.0.0'),
-    correlationIdHeader: getEnv('CORRELATION_ID_HEADER', 'x-correlation-id'),
   },
 
   auth: {

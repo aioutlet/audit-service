@@ -46,16 +46,16 @@ class DatabaseConnection {
 
     // Handle pool errors
     this.pool.on('error', (err) => {
-      logger.error('❌ PostgreSQL pool error', {
-        correlationId: 'database-pool',
+      logger.error('[ERROR] PostgreSQL pool error', {
+        component: 'database-pool',
         error: err.message,
         stack: err.stack,
       });
     });
 
     // Log successful connection
-    logger.info('✅ PostgreSQL connection pool initialized', {
-      correlationId: 'database-pool',
+    logger.info('[SUCCESS] PostgreSQL connection pool initialized', {
+      component: 'database-pool',
       host: config.database.host,
       port: config.database.port,
       database: config.database.name,
@@ -86,8 +86,8 @@ class DatabaseConnection {
 
       try {
         const result = await client.query('SELECT NOW() as current_time, version() as version');
-        logger.info('✅ Database connection test successful', {
-          correlationId: 'database-test',
+        logger.info('[SUCCESS] Database connection test successful', {
+          component: 'database-test',
           currentTime: result.rows[0].current_time,
           version: result.rows[0].version.split(' ').slice(0, 2).join(' '),
         });
@@ -96,8 +96,8 @@ class DatabaseConnection {
         client.release();
       }
     } catch (error) {
-      logger.error('❌ Database connection test failed', {
-        correlationId: 'database-test',
+      logger.error('[ERROR] Database connection test failed', {
+        component: 'database-test',
         error: error instanceof Error ? error.message : 'Unknown error',
         stack: error instanceof Error ? error.stack : undefined,
       });
@@ -112,8 +112,8 @@ class DatabaseConnection {
     if (this.pool) {
       await this.pool.end();
       this.pool = null;
-      logger.info('✅ Database connection pool closed', {
-        correlationId: 'database-pool',
+      logger.info('[SUCCESS] Database connection pool closed', {
+        component: 'database-pool',
       });
     }
   }

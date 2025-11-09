@@ -30,7 +30,7 @@ export class DatabaseMigrationRunner {
 
     // Debug logging
     logger.debug('Migration runner initialized', {
-      correlationId: 'migration-runner',
+      component: 'migration-runner',
       migrationsDir: this.migrationsDir,
       cwd: process.cwd(),
     });
@@ -40,17 +40,17 @@ export class DatabaseMigrationRunner {
    * Run all pending migrations
    */
   async runMigrations(): Promise<void> {
-    const correlationId = 'migration-runner';
+    const component = 'migration-runner';
 
     try {
-      logger.info('🔄 Starting database migration process...', { correlationId });
+      logger.info('🔄 Starting database migration process...', { component });
 
       // Ensure migration_history table exists
       await this.ensureMigrationHistoryTable();
 
       // Get all migration files
       const availableMigrations = await this.getAvailableMigrations();
-      logger.info(`📁 Found ${availableMigrations.length} migration files`, { correlationId });
+      logger.info(`📁 Found ${availableMigrations.length} migration files`, { component });
 
       // Get executed migrations
       const executedMigrations = await this.getExecutedMigrations();
@@ -60,12 +60,12 @@ export class DatabaseMigrationRunner {
       const pendingMigrations = availableMigrations.filter((migration) => !executedNames.has(migration.name));
 
       if (pendingMigrations.length === 0) {
-        logger.info('✅ No pending migrations to execute', { correlationId });
+        logger.info('✅ No pending migrations to execute', { component });
         return;
       }
 
       logger.info(`🚀 Executing ${pendingMigrations.length} pending migrations`, {
-        correlationId,
+        component,
         pendingMigrations: pendingMigrations.map((m) => m.name),
       });
 
@@ -74,10 +74,10 @@ export class DatabaseMigrationRunner {
         await this.executeMigration(migration);
       }
 
-      logger.info('✅ All migrations completed successfully', { correlationId });
+      logger.info('✅ All migrations completed successfully', { component });
     } catch (error) {
       logger.error('❌ Migration process failed', {
-        correlationId,
+        component,
         error: error instanceof Error ? error.message : 'Unknown error',
         stack: error instanceof Error ? error.stack : undefined,
       });
@@ -109,7 +109,7 @@ export class DatabaseMigrationRunner {
       `;
 
       await client.query(query);
-      logger.debug('✅ Migration history table ensured', { correlationId: 'migration-runner' });
+      logger.debug('✅ Migration history table ensured', { component: 'migration-runner' });
     } finally {
       client.release();
     }
@@ -141,7 +141,7 @@ export class DatabaseMigrationRunner {
       return migrations;
     } catch (error) {
       logger.error('❌ Failed to read migration files', {
-        correlationId: 'migration-runner',
+        component: 'migration-runner',
         error: error instanceof Error ? error.message : 'Unknown error',
         migrationsDir: this.migrationsDir,
       });
@@ -182,7 +182,7 @@ export class DatabaseMigrationRunner {
       await client.query('BEGIN');
 
       logger.info(`🔄 Executing migration: ${migration.name}`, {
-        correlationId: 'migration-runner',
+        component: 'migration-runner',
       });
 
       // Execute migration SQL
@@ -200,7 +200,7 @@ export class DatabaseMigrationRunner {
 
       const executionTime = Date.now() - startTime;
       logger.info(`✅ Migration completed: ${migration.name}`, {
-        correlationId: 'migration-runner',
+        component: 'migration-runner',
         executionTimeMs: executionTime,
       });
     } catch (error) {
@@ -208,7 +208,7 @@ export class DatabaseMigrationRunner {
       await client.query('ROLLBACK');
 
       logger.error(`❌ Migration failed: ${migration.name}`, {
-        correlationId: 'migration-runner',
+        component: 'migration-runner',
         error: error instanceof Error ? error.message : 'Unknown error',
         stack: error instanceof Error ? error.stack : undefined,
       });
@@ -230,7 +230,7 @@ export class DatabaseMigrationRunner {
    * Validate migration checksums (detect modified migrations)
    */
   async validateMigrations(): Promise<boolean> {
-    const correlationId = 'migration-validator';
+    const component = 'migration-validator';
 
     try {
       const availableMigrations = await this.getAvailableMigrations();
@@ -240,13 +240,13 @@ export class DatabaseMigrationRunner {
         const available = availableMigrations.find((m) => m.name === executed.migration_name);
 
         if (!available) {
-          logger.warn(`⚠️  Migration file missing: ${executed.migration_name}`, { correlationId });
+          logger.warn(`⚠️  Migration file missing: ${executed.migration_name}`, { component });
           continue;
         }
 
         if (available.checksum !== executed.checksum) {
           logger.error(`❌ Migration checksum mismatch: ${executed.migration_name}`, {
-            correlationId,
+            component,
             expectedChecksum: executed.checksum,
             actualChecksum: available.checksum,
           });
@@ -254,11 +254,11 @@ export class DatabaseMigrationRunner {
         }
       }
 
-      logger.info('✅ All migration checksums validated', { correlationId });
+      logger.info('✅ All migration checksums validated', { component });
       return true;
     } catch (error) {
       logger.error('❌ Migration validation failed', {
-        correlationId,
+        component,
         error: error instanceof Error ? error.message : 'Unknown error',
       });
       return false;

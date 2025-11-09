@@ -10,10 +10,10 @@ import logger from '../core/logger';
  * Initialize database and run migrations
  */
 export async function initializeDatabase(): Promise<void> {
-  const correlationId = 'database-init';
+  const component = 'database-init';
 
   try {
-    logger.info('🔄 Initializing database...', { correlationId });
+    logger.info('🔄 Initializing database...', { component });
 
     // Initialize database connection
     const db = DatabaseConnection.getInstance();
@@ -32,13 +32,13 @@ export async function initializeDatabase(): Promise<void> {
     // Validate migrations
     const migrationsValid = await migrationRunner.validateMigrations();
     if (!migrationsValid) {
-      logger.warn('⚠️  Migration validation warnings detected', { correlationId });
+      logger.warn('⚠️  Migration validation warnings detected', { component });
     }
 
-    logger.info('✅ Database initialization completed successfully', { correlationId });
+    logger.info('✅ Database initialization completed successfully', { component });
   } catch (error) {
     logger.error('❌ Database initialization failed', {
-      correlationId,
+      component,
       error: error instanceof Error ? error.message : 'Unknown error',
       stack: error instanceof Error ? error.stack : undefined,
       errorDetails: error,

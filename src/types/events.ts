@@ -13,7 +13,8 @@ export interface EventMessage {
   source: string;
   data: any;
   metadata?: {
-    correlationId?: string;
+    traceId?: string;
+    spanId?: string;
     version?: string;
     [key: string]: any;
   };

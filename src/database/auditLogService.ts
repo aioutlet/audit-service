@@ -3,7 +3,8 @@ import logger from '../core/logger';
 import { EventMessage } from '../types/events';
 
 export interface AuditLogEntry {
-  correlationId: string;
+  traceId: string;
+  spanId?: string;
   eventType: string;
   eventAction: string;
   serviceName: string;
@@ -33,22 +34,24 @@ export class AuditLogService {
    * Write an audit log entry to the database
    */
   async writeAuditLog(entry: AuditLogEntry): Promise<void> {
-    const correlationId = entry.correlationId || 'audit-log-service';
+    const traceId = entry.traceId || 'audit-log-service';
+    const spanId = entry.spanId || 'no-span';
 
     try {
       const pool = getDatabasePool();
 
       const query = `
         INSERT INTO audit_logs (
-          correlation_id, event_type, event_action, service_name,
+          trace_id, span_id, event_type, event_action, service_name,
           user_id, resource_id, resource_type, event_data, metadata,
           ip_address, user_agent, timestamp
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
         RETURNING id, created_at
       `;
 
       const values = [
-        entry.correlationId,
+        entry.traceId,
+        entry.spanId || null,
         entry.eventType,
         entry.eventAction,
         entry.serviceName,
@@ -64,8 +67,9 @@ export class AuditLogService {
 
       const result = await pool.query(query, values);
 
-      logger.debug('✅ Audit log written to database', {
-        correlationId,
+      logger.debug('[SUCCESS] Audit log written to database', {
+        traceId,
+        spanId,
         auditLogId: result.rows[0].id,
         eventType: entry.eventType,
         eventAction: entry.eventAction,
@@ -74,8 +78,9 @@ export class AuditLogService {
         resourceId: entry.resourceId,
       });
     } catch (error) {
-      logger.error('❌ Failed to write audit log to database', {
-        correlationId,
+      logger.error('[ERROR] Failed to write audit log to database', {
+        traceId,
+        spanId,
         error: error instanceof Error ? error.message : 'Unknown error',
         stack: error instanceof Error ? error.stack : undefined,
         eventType: entry.eventType,
@@ -96,7 +101,8 @@ export class AuditLogService {
     additionalData: Partial<AuditLogEntry> = {}
   ): Promise<void> {
     const auditEntry: AuditLogEntry = {
-      correlationId: event.metadata?.correlationId || event.eventId || 'unknown',
+      traceId: event.metadata?.traceId || event.eventId || 'unknown',
+      spanId: event.metadata?.spanId,
       eventType,
       eventAction,
       serviceName: event.source || additionalData.serviceName || 'unknown-service',
@@ -133,10 +139,10 @@ export class AuditLogService {
       serviceName?: string;
       startDate?: Date;
       endDate?: Date;
-      correlationId?: string;
+      traceId?: string;
     } = {}
   ): Promise<{ logs: any[]; total: number }> {
-    const { limit = 50, offset = 0, userId, eventType, serviceName, startDate, endDate, correlationId } = options;
+    const { limit = 50, offset = 0, userId, eventType, serviceName, startDate, endDate, traceId } = options;
 
     try {
       const pool = getDatabasePool();
@@ -161,9 +167,9 @@ export class AuditLogService {
         queryParams.push(serviceName);
       }
 
-      if (correlationId) {
-        whereConditions.push(`correlation_id = $${paramCounter++}`);
-        queryParams.push(correlationId);
+      if (traceId) {
+        whereConditions.push(`trace_id = $${paramCounter++}`);
+        queryParams.push(traceId);
       }
 
       if (startDate) {
@@ -206,7 +212,7 @@ export class AuditLogService {
         total: parseInt(countResult.rows[0].total),
       };
     } catch (error) {
-      logger.error('❌ Failed to retrieve audit logs', {
+      logger.error('[ERROR] Failed to retrieve audit logs', {
         error: error instanceof Error ? error.message : 'Unknown error',
         options,
       });

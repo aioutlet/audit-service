@@ -43,7 +43,8 @@ export function registerUserSubscriptions(server: DaprServer): void {
         role: event.data?.role,
         isActive: event.data?.isActive,
         source: event.source || 'user-service',
-        correlationId: event.metadata?.correlationId,
+        traceId: event.metadata?.traceId,
+        spanId: event.metadata?.spanId,
         resourceType: 'user',
         resourceId: event.data?.userId,
         severity: 'medium',
@@ -52,7 +53,8 @@ export function registerUserSubscriptions(server: DaprServer): void {
     } catch (error) {
       logger.error('Error handling user.created event', {
         eventId: event.eventId,
-        correlationId: event.metadata?.correlationId,
+        traceId: event.metadata?.traceId,
+        spanId: event.metadata?.spanId,
         error,
       });
       throw error;
@@ -81,7 +83,8 @@ export function registerUserSubscriptions(server: DaprServer): void {
         updatedFields: event.data?.updatedFields,
         updatedBy: event.data?.updatedBy,
         source: event.source || 'user-service',
-        correlationId: event.metadata?.correlationId,
+        traceId: event.metadata?.traceId,
+        spanId: event.metadata?.spanId,
         resourceType: 'user',
         resourceId: event.data?.userId,
         severity: 'low',
@@ -90,7 +93,8 @@ export function registerUserSubscriptions(server: DaprServer): void {
     } catch (error) {
       logger.error('Error handling user.updated event', {
         eventId: event.eventId,
-        correlationId: event.metadata?.correlationId,
+        traceId: event.metadata?.traceId,
+        spanId: event.metadata?.spanId,
         error,
       });
       throw error;
@@ -117,7 +121,8 @@ export function registerUserSubscriptions(server: DaprServer): void {
         deletedBy: event.data?.deletedBy,
         reason: event.data?.reason,
         source: event.source || 'user-service',
-        correlationId: event.metadata?.correlationId,
+        traceId: event.metadata?.traceId,
+        spanId: event.metadata?.spanId,
         resourceType: 'user',
         resourceId: event.data?.userId,
         severity: 'high',
@@ -126,7 +131,8 @@ export function registerUserSubscriptions(server: DaprServer): void {
     } catch (error) {
       logger.error('Error handling user.deleted event', {
         eventId: event.eventId,
-        correlationId: event.metadata?.correlationId,
+        traceId: event.metadata?.traceId,
+        spanId: event.metadata?.spanId,
         error,
       });
       throw error;
@@ -143,7 +149,8 @@ export function registerUserSubscriptions(server: DaprServer): void {
         email: event.data?.email,
         verifiedAt: event.data?.verifiedAt || event.timestamp,
         source: event.source || 'user-service',
-        correlationId: event.metadata?.correlationId,
+        traceId: event.metadata?.traceId,
+        spanId: event.metadata?.spanId,
         resourceType: 'email',
         resourceId: event.data?.email,
         severity: 'low',
@@ -166,7 +173,8 @@ export function registerUserSubscriptions(server: DaprServer): void {
         changedBy: event.data?.changedBy,
         ipAddress: event.data?.ipAddress,
         source: event.source || 'user-service',
-        correlationId: event.metadata?.correlationId,
+        traceId: event.metadata?.traceId,
+        spanId: event.metadata?.spanId,
         resourceType: 'auth',
         resourceId: event.data?.userId,
         severity: 'high',

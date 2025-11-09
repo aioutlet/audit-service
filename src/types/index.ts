@@ -10,7 +10,7 @@ export interface AuditLog {
   occurredAt: Date;
   ipAddress?: string;
   userAgent?: string;
-  correlationId?: string;
+  traceId?: string;
   endpoint?: string;
   httpMethod?: string;
   businessContext: Record<string, any>;
@@ -34,7 +34,7 @@ export interface CreateAuditLogRequest {
   resourceId?: string;
   ipAddress?: string;
   userAgent?: string;
-  correlationId?: string;
+  traceId?: string;
   endpoint?: string;
   httpMethod?: string;
   businessContext?: Record<string, any>;
@@ -56,7 +56,7 @@ export interface AuditLogSearchParams {
   userType?: string;
   resourceType?: string;
   resourceId?: string;
-  correlationId?: string;
+  traceId?: string;
   success?: boolean;
   severity?: string;
   fromDate?: string;
@@ -103,6 +103,6 @@ export interface ServiceError {
   code: string;
   message: string;
   details?: any;
-  correlationId?: string;
+  traceId?: string;
   timestamp: Date;
 }
