@@ -1,6 +1,11 @@
-import { getDatabasePool } from '../database/index';
-import logger from '../core/logger';
-import { EventMessage } from '../types/events';
+/**
+ * Audit Log Service
+ * Handles writing and retrieving audit logs from PostgreSQL database
+ */
+
+import { getDatabasePool } from '../db/index.js';
+import logger from '../core/logger.js';
+import { EventMessage } from '../types/events.js';
 
 export interface AuditLogEntry {
   traceId: string;

@@ -1,5 +1,5 @@
 import winston from 'winston';
-import { config } from './config.js';
+import { config } from '../config/index.js';
 
 const logLevel = process.env.LOG_LEVEL || 'info';
 const logFormat = process.env.LOG_FORMAT || 'json';

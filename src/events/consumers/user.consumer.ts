@@ -5,7 +5,7 @@
 
 import { DaprServer } from '@dapr/dapr';
 import logger from '../../core/logger.js';
-import auditLogService from '../../database/auditLogService.js';
+import auditLogService from '../../services/auditLog.service.js';
 import { trackMessageProcessed } from '../../app.js';
 
 const PUBSUB_NAME = 'audit-pubsub';

@@ -1,120 +1,143 @@
 /**
- * Audit Service Application
- * Main application logic for consuming and processing audit events via Dapr
+ * Audit Service - Consumer Application
+ * Subscribes to audit events from other services via Dapr pub/sub
  */
 
+import express from 'express';
+import { validateConfig } from './config/index.js';
+import { initializeDatabase, closeDatabaseConnections } from './db/index.js';
 import logger from './core/logger.js';
-import { config } from './core/config.js';
-import { startHealthServer, initializeDaprServer } from './health.js';
 import { registerAllSubscriptions } from './events/consumers/index.js';
-import { initializeDatabase, closeDatabaseConnections } from './database/index.js';
-import validateConfig from './validators/config.validator.js';
+import daprServerService from './services/daprServer.service.js';
+import auditLogService from './services/auditLog.service.js';
+import { traceContextMiddleware } from './middleware/traceContext.middleware.js';
+import { errorMiddleware, notFoundHandler } from './middleware/error.middleware.js';
+import operationalRoutes from './routes/operational.routes.js';
+import apiRoutes from './routes/index.js';
+import { config } from './config/index.js';
 
-let isShuttingDown = false;
-
-// Track consumer state
+// Consumer state tracking
 export const consumerState = {
   connected: false,
   consuming: false,
   messagesProcessed: 0,
-  lastMessageAt: null as string | null,
-  startedAt: new Date().toISOString(),
+  lastMessageAt: null as Date | null,
+  startedAt: new Date(),
 };
 
-export function trackMessageProcessed(): void {
+export function trackMessageProcessed() {
   consumerState.messagesProcessed++;
-  consumerState.lastMessageAt = new Date().toISOString();
+  consumerState.lastMessageAt = new Date();
 }
 
 /**
- * Start the audit consumer
+ * Initialize and start Express server
  */
-export const startConsumer = async (): Promise<void> => {
+function startExpressServer(): void {
+  const app = express();
+  const PORT = config.port || 9000;
+  const HOST = '0.0.0.0';
+
+  // Middleware
+  app.use(express.json());
+  app.use(traceContextMiddleware as any); // W3C Trace Context
+
+  // Operational routes (no /api prefix for backward compatibility)
+  app.use('/', operationalRoutes);
+
+  // API routes
+  app.use('/api', apiRoutes);
+
+  // 404 handler
+  app.use(notFoundHandler);
+
+  // Error handler (must be last)
+  app.use(errorMiddleware as any);
+
+  app.listen(PORT, HOST, () => {
+    logger.info(`Express server running on ${HOST}:${PORT}`);
+  });
+}
+
+/**
+ * Start the consumer service
+ */
+export async function startConsumer() {
   try {
-    logger.info('Starting Audit Service Consumer', {
-      service: config.service,
-      port: config.port,
-    });
+    logger.info('Starting Audit Service Consumer...');
 
     // Validate configuration
     validateConfig();
+    logger.info('Configuration validated');
 
     // Initialize database
-    logger.info('Initializing database connection');
     await initializeDatabase();
+    consumerState.connected = true;
+    logger.info('Database initialized');
 
-    // Start health check server (required for Dapr subscriptions)
-    startHealthServer();
+    // Start Express server
+    startExpressServer();
+    logger.info('Express server started');
 
-    // Initialize Dapr for event-driven communication
-    logger.info('Initializing Dapr server');
-    const daprServer = await initializeDaprServer();
+    // Initialize Dapr server
+    const daprServer = await daprServerService.initialize();
+    logger.info('Dapr server initialized');
 
     // Register all event subscriptions
-    logger.info('Registering event subscriptions');
     registerAllSubscriptions(daprServer);
+    logger.info('Event subscriptions registered');
 
     // Start Dapr server
-    await daprServer.start();
-
-    consumerState.connected = true;
+    await daprServerService.start();
     consumerState.consuming = true;
+    logger.info('Dapr server started - consuming events');
 
-    logger.info('Audit Service ready - processing events via Dapr pub/sub', {
-      messagesProcessed: consumerState.messagesProcessed,
-      startedAt: consumerState.startedAt,
-    });
+    logger.info('Audit Service Consumer started successfully');
   } catch (error) {
-    logger.error('Failed to start audit consumer', { error });
+    logger.error('Failed to start consumer:', error);
     process.exit(1);
   }
-};
+}
 
 /**
- * Graceful shutdown handler
+ * Graceful shutdown
  */
-const gracefulShutdown = async (signal: string): Promise<void> => {
-  if (isShuttingDown) {
-    logger.warn('Shutdown already in progress - forcing exit');
-    process.exit(1);
-  }
-
-  isShuttingDown = true;
-  consumerState.consuming = false;
-
-  logger.info('Starting graceful shutdown', {
-    signal,
-    messagesProcessed: consumerState.messagesProcessed,
-  });
+async function gracefulShutdown(signal: string) {
+  logger.info(`${signal} received, starting graceful shutdown...`);
 
   try {
+    consumerState.consuming = false;
+    
+    // Stop Dapr server
+    await daprServerService.stop();
+    logger.info('Dapr server stopped');
+    
     // Close database connections
-    logger.info('Closing database connections');
     await closeDatabaseConnections();
-
-    logger.info('Dapr server shutdown handled by Dapr runtime');
+    consumerState.connected = false;
+    
     logger.info('Graceful shutdown completed');
     process.exit(0);
   } catch (error) {
-    logger.error('Error during shutdown', { error });
+    logger.error('Error during graceful shutdown:', error);
     process.exit(1);
   }
-};
+}
 
-// Register shutdown handlers
+// Shutdown handlers
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));
-process.on('SIGUSR2', () => gracefulShutdown('SIGUSR2')); // For nodemon
+process.on('SIGUSR2', () => gracefulShutdown('SIGUSR2'));
 
-// Handle uncaught errors
-process.on('uncaughtException', (error) => {
-  logger.error('Uncaught Exception', { error });
-  gracefulShutdown('UNCAUGHT_EXCEPTION');
+// Error handlers
+process.on('uncaughtException', (error: Error) => {
+  logger.error('Uncaught Exception:', error);
+  gracefulShutdown('uncaughtException');
 });
 
-process.on('unhandledRejection', (reason, promise) => {
-  logger.error('Unhandled Rejection', { reason, promise });
-  gracefulShutdown('UNHANDLED_REJECTION');
+process.on('unhandledRejection', (reason: unknown, promise: Promise<unknown>) => {
+  logger.error('Unhandled Rejection', { promise, reason });
+  gracefulShutdown('unhandledRejection');
 });
 
 // Start the consumer

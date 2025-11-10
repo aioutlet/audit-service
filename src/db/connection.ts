@@ -1,6 +1,7 @@
 import { Pool, PoolConfig } from 'pg';
-import { config } from '../core/config';
+import { config } from '../config/index.js';
 import logger from '../core/logger';
+import daprSecretManager from '../services/daprSecretManager.service.js';
 
 /**
  * Database connection pool for PostgreSQL
@@ -29,12 +30,36 @@ class DatabaseConnection {
       return this.pool;
     }
 
+    // Try to get database configuration from Dapr secrets first
+    let dbConfig;
+    try {
+      dbConfig = await daprSecretManager.getDatabaseConfig();
+      logger.info('Database configuration loaded from Dapr secrets', {
+        component: 'database-pool',
+        host: dbConfig.host,
+        port: dbConfig.port,
+        database: dbConfig.name,
+      });
+    } catch (error) {
+      logger.warn('Failed to load database config from Dapr, using environment variables', {
+        component: 'database-pool',
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+      dbConfig = {
+        host: config.database.host,
+        port: config.database.port,
+        name: config.database.name,
+        user: config.database.user,
+        password: config.database.password,
+      };
+    }
+
     const poolConfig: PoolConfig = {
-      host: config.database.host,
-      port: config.database.port,
-      database: config.database.name,
-      user: config.database.user,
-      password: config.database.password,
+      host: dbConfig.host,
+      port: dbConfig.port,
+      database: dbConfig.name,
+      user: dbConfig.user,
+      password: dbConfig.password,
       ssl: config.database.ssl,
       min: config.database.poolMin,
       max: config.database.poolMax,
