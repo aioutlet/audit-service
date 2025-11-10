@@ -19,8 +19,3 @@ export interface EventMessage {
     [key: string]: any;
   };
 }
-
-/**
- * Event handler function signature
- */
-export type EventHandler = (event: EventMessage | any) => Promise<void>;

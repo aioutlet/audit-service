@@ -320,34 +320,4 @@ const validateConfig = (): void => {
   console.log('[CONFIG] ✅ All required environment variables are valid');
 };
 
-/**
- * Gets a validated configuration value
- * Assumes validateConfig() has already been called
- */
-const getConfig = (key: string): string | undefined => {
-  return process.env[key];
-};
-
-/**
- * Gets a validated configuration value as boolean
- */
-const getConfigBoolean = (key: string): boolean => {
-  return process.env[key]?.toLowerCase() === 'true';
-};
-
-/**
- * Gets a validated configuration value as number
- */
-const getConfigNumber = (key: string): number => {
-  return parseInt(process.env[key] || '0', 10);
-};
-
-/**
- * Gets a validated configuration value as array (comma-separated)
- */
-const getConfigArray = (key: string): string[] => {
-  return process.env[key]?.split(',').map((item) => item.trim()) || [];
-};
-
 export default validateConfig;
-export { getConfig, getConfigBoolean, getConfigNumber, getConfigArray };

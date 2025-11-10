@@ -26,7 +26,7 @@ export class DatabaseMigrationRunner {
   constructor(pool: Pool) {
     this.pool = pool;
     // Use relative path from current working directory
-    this.migrationsDir = join(process.cwd(), 'src', 'consumer', 'database', 'migrations');
+    this.migrationsDir = join(process.cwd(), 'src', 'db', 'migrations');
 
     // Debug logging
     logger.debug('Migration runner initialized', {

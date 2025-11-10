@@ -4,17 +4,15 @@
  */
 
 import express from 'express';
-import { validateConfig } from './config/index.js';
+import { config, validateConfig } from './config/index.js';
 import { initializeDatabase, closeDatabaseConnections } from './db/index.js';
 import logger from './core/logger.js';
 import { registerAllSubscriptions } from './events/consumers/index.js';
 import daprServerService from './services/daprServer.service.js';
-import auditLogService from './services/auditLog.service.js';
 import { traceContextMiddleware } from './middleware/traceContext.middleware.js';
 import { errorMiddleware, notFoundHandler } from './middleware/error.middleware.js';
 import operationalRoutes from './routes/operational.routes.js';
 import apiRoutes from './routes/index.js';
-import { config } from './config/index.js';
 
 // Consumer state tracking
 export const consumerState = {
@@ -107,15 +105,15 @@ async function gracefulShutdown(signal: string) {
 
   try {
     consumerState.consuming = false;
-    
+
     // Stop Dapr server
     await daprServerService.stop();
     logger.info('Dapr server stopped');
-    
+
     // Close database connections
     await closeDatabaseConnections();
     consumerState.connected = false;
-    
+
     logger.info('Graceful shutdown completed');
     process.exit(0);
   } catch (error) {
