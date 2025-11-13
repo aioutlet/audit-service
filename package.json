@@ -6,8 +6,8 @@
   "type": "module",
   "scripts": {
     "build": "tsc && tsc-alias -p tsconfig.json",
-    "start": "node dist/consumer/server.js",
-    "dev": "nodemon --exec tsx src/consumer/server.ts",
+    "start": "node dist/server.js",
+    "dev": "npx tsx watch src/server.ts",
     "test": "jest",
     "test:watch": "jest --watch",
     "lint": "eslint src --ext .ts",

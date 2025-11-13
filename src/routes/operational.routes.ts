@@ -10,8 +10,8 @@ const router = Router();
 
 // Health endpoints
 router.get('/health', operationalController.health as any);
-router.get('/health/ready', operationalController.readiness as any);
-router.get('/health/live', operationalController.liveness as any);
+router.get('/health/readiness', operationalController.readiness as any);
+router.get('/health/liveness', operationalController.liveness as any);
 
 // Metrics endpoint
 router.get('/metrics', operationalController.metrics as any);

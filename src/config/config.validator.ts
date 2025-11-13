@@ -128,13 +128,6 @@ const validationRules: Record<string, ValidationRule> = {
     default: '20',
   },
 
-  // Message Broker Configuration
-  MESSAGE_BROKER_TYPE: {
-    required: true,
-    validator: (value) => ['rabbitmq', 'kafka', 'azure-service-bus'].includes(value?.toLowerCase()),
-    errorMessage: 'MESSAGE_BROKER_TYPE must be one of: rabbitmq, kafka, azure-service-bus',
-  },
-
   // Logging Configuration
   LOG_LEVEL: {
     required: false,
@@ -165,25 +158,6 @@ const validationRules: Record<string, ValidationRule> = {
     validator: (value) => !value || (value.length > 0 && value.includes('.')),
     errorMessage: 'LOG_FILE_PATH must be a valid file path with extension',
     default: './logs/audit-service.log',
-  },
-
-  // Observability Configuration
-  ENABLE_TRACING: {
-    required: false,
-    validator: (value) => ['true', 'false'].includes(value?.toLowerCase()),
-    errorMessage: 'ENABLE_TRACING must be true or false',
-    default: 'false',
-  },
-  OTEL_EXPORTER_OTLP_ENDPOINT: {
-    required: false,
-    validator: (value) => !value || isValidUrl(value),
-    errorMessage: 'OTEL_EXPORTER_OTLP_ENDPOINT must be a valid URL',
-  },
-  CORRELATION_ID_HEADER: {
-    required: false,
-    validator: (value) => !value || (value.length > 0 && /^[a-z-]+$/.test(value)),
-    errorMessage: 'CORRELATION_ID_HEADER must be lowercase with hyphens only',
-    default: 'x-correlation-id',
   },
 };
 
@@ -223,83 +197,6 @@ const validateConfig = (): void => {
         errors.push(`   Current value: ${value.substring(0, 100)}...`);
       } else {
         errors.push(`   Current value: ${value}`);
-      }
-    }
-  }
-
-  // Conditional validation based on MESSAGE_BROKER_TYPE
-  const brokerType = process.env.MESSAGE_BROKER_TYPE?.toLowerCase();
-  if (brokerType) {
-    console.log(`[CONFIG] Validating ${brokerType} broker configuration...`);
-
-    if (brokerType === 'rabbitmq') {
-      const rabbitMqVars = {
-        MESSAGE_BROKER_URL: {
-          validator: isValidAmqpUrl,
-          errorMessage: 'MESSAGE_BROKER_URL must be a valid AMQP connection string (amqp://...)',
-        },
-        MESSAGE_BROKER_QUEUE: {
-          validator: (value: string) => Boolean(value && value.length > 0),
-          errorMessage: 'MESSAGE_BROKER_QUEUE must be a non-empty string',
-        },
-      };
-
-      for (const [key, rule] of Object.entries(rabbitMqVars)) {
-        const value = process.env[key];
-        if (!value) {
-          errors.push(`❌ ${key} is required when MESSAGE_BROKER_TYPE=rabbitmq`);
-        } else if (!rule.validator(value)) {
-          errors.push(`❌ ${key}: ${rule.errorMessage}`);
-        }
-      }
-    } else if (brokerType === 'kafka') {
-      const kafkaVars = {
-        KAFKA_BROKERS: {
-          validator: (value: string) => Boolean(value && value.includes(':')),
-          errorMessage: 'KAFKA_BROKERS must be comma-separated host:port pairs',
-        },
-        KAFKA_TOPIC: {
-          validator: (value: string) => Boolean(value && value.length > 0),
-          errorMessage: 'KAFKA_TOPIC must be a non-empty string',
-        },
-        KAFKA_GROUP_ID: {
-          validator: (value: string) => Boolean(value && value.length > 0),
-          errorMessage: 'KAFKA_GROUP_ID must be a non-empty string',
-        },
-      };
-
-      for (const [key, rule] of Object.entries(kafkaVars)) {
-        const value = process.env[key];
-        if (!value) {
-          errors.push(`❌ ${key} is required when MESSAGE_BROKER_TYPE=kafka`);
-        } else if (!rule.validator(value)) {
-          errors.push(`❌ ${key}: ${rule.errorMessage}`);
-        }
-      }
-    } else if (brokerType === 'azure-service-bus') {
-      const azureVars = {
-        AZURE_SERVICE_BUS_CONNECTION_STRING: {
-          validator: (value: string) =>
-            Boolean(value && value.includes('Endpoint=') && value.includes('SharedAccessKey=')),
-          errorMessage: 'AZURE_SERVICE_BUS_CONNECTION_STRING must be a valid Azure Service Bus connection string',
-        },
-        AZURE_SERVICE_BUS_TOPIC: {
-          validator: (value: string) => Boolean(value && value.length > 0),
-          errorMessage: 'AZURE_SERVICE_BUS_TOPIC must be a non-empty string',
-        },
-        AZURE_SERVICE_BUS_SUBSCRIPTION: {
-          validator: (value: string) => Boolean(value && value.length > 0),
-          errorMessage: 'AZURE_SERVICE_BUS_SUBSCRIPTION must be a non-empty string',
-        },
-      };
-
-      for (const [key, rule] of Object.entries(azureVars)) {
-        const value = process.env[key];
-        if (!value) {
-          errors.push(`❌ ${key} is required when MESSAGE_BROKER_TYPE=azure-service-bus`);
-        } else if (!rule.validator(value)) {
-          errors.push(`❌ ${key}: ${rule.errorMessage}`);
-        }
       }
     }
   }

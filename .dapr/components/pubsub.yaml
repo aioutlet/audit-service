@@ -3,16 +3,16 @@ kind: Component
 metadata:
   name: audit-pubsub
 spec:
-  type: pubsub.redis
+  type: pubsub.rabbitmq
   version: v1
   metadata:
-    - name: redisHost
-      value: localhost:6379
-    - name: redisPassword
-      value: ''
-    - name: enableTLS
-      value: 'false'
+    - name: connectionString
+      value: amqp://admin:admin123@localhost:5672
     - name: consumerID
       value: audit-service
+    - name: deliveryMode
+      value: '2'
+    - name: exchangeKind
+      value: fanout
 scopes:
   - audit-service

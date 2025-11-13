@@ -15,28 +15,12 @@ interface DatabaseConfig {
   url: string;
 }
 
-interface RateLimitConfig {
-  enabled: boolean;
-  windowMs: number;
-  maxRequests: number;
-}
-
-interface CorsConfig {
-  origin: string;
-  credentials: boolean;
-}
-
 interface LoggingConfig {
   level: string;
   format: string;
   toConsole: boolean;
   toFile: boolean;
   filePath?: string;
-}
-
-interface MetricsConfig {
-  enabled: boolean;
-  port: number;
 }
 
 interface AuditConfig {
@@ -50,24 +34,14 @@ interface ServiceConfig {
   version: string;
 }
 
-interface AuthConfig {
-  jwtSecret: string;
-  serviceSecret: string;
-  tokenExpiresIn: string;
-}
-
 interface Config {
   env: string;
   port: number;
   host: string;
   database: DatabaseConfig;
-  rateLimit: RateLimitConfig;
-  cors: CorsConfig;
   logging: LoggingConfig;
-  metrics: MetricsConfig;
   audit: AuditConfig;
   service: ServiceConfig;
-  auth: AuthConfig;
 }
 
 const getEnv = (key: string, defaultValue?: string): string => {
@@ -120,28 +94,12 @@ export const config: Config = {
     })(),
   },
 
-  rateLimit: {
-    enabled: true,
-    windowMs: getEnvNumber('API_RATE_LIMIT_WINDOW_MS', 60000),
-    maxRequests: getEnvNumber('API_RATE_LIMIT_MAX_REQUESTS', 1000),
-  },
-
-  cors: {
-    origin: getEnv('CORS_ORIGIN', '*'),
-    credentials: getEnvBoolean('CORS_CREDENTIALS', true),
-  },
-
   logging: {
     level: getEnv('LOG_LEVEL', 'info'),
     format: getEnv('LOG_FORMAT', 'json'),
     toConsole: getEnvBoolean('LOG_TO_CONSOLE', true),
     toFile: getEnvBoolean('LOG_TO_FILE', false),
     filePath: process.env.LOG_FILE_PATH || undefined,
-  },
-
-  metrics: {
-    enabled: getEnvBoolean('METRICS_ENABLED', true),
-    port: getEnvNumber('METRICS_PORT', 9001),
   },
 
   audit: {
@@ -153,11 +111,5 @@ export const config: Config = {
   service: {
     name: getEnv('NAME', 'audit-service'),
     version: getEnv('VERSION', '1.0.0'),
-  },
-
-  auth: {
-    jwtSecret: getEnv('JWT_SECRET', 'your-super-secure-jwt-secret-key'),
-    serviceSecret: getEnv('SERVICE_SECRET', 'your-super-secure-service-secret-key'),
-    tokenExpiresIn: getEnv('JWT_EXPIRES_IN', '24h'),
   },
 };

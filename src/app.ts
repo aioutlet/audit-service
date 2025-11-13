@@ -138,5 +138,7 @@ process.on('unhandledRejection', (reason: unknown, promise: Promise<unknown>) =>
   gracefulShutdown('unhandledRejection');
 });
 
-// Start the consumer
-startConsumer();
+// Start the consumer only when this file is the entry point
+if (import.meta.url === `file://${process.argv[1]}`) {
+  startConsumer();
+}

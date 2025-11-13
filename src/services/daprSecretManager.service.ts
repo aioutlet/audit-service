@@ -169,11 +169,11 @@ export class DaprSecretManager {
     password: string;
   }> {
     const [host, port, name, user, password] = await Promise.all([
-      this.getSecret('database:host') || this.getSecret('POSTGRES_HOST'),
-      this.getSecret('database:port') || this.getSecret('POSTGRES_PORT'),
-      this.getSecret('database:name') || this.getSecret('POSTGRES_DB'),
-      this.getSecret('database:user') || this.getSecret('POSTGRES_USER'),
-      this.getSecret('database:password') || this.getSecret('POSTGRES_PASSWORD'),
+      this.getSecret('database:host').then(v => v || this.getSecret('POSTGRES_HOST')),
+      this.getSecret('database:port').then(v => v || this.getSecret('POSTGRES_PORT')),
+      this.getSecret('database:name').then(v => v || this.getSecret('POSTGRES_DB')),
+      this.getSecret('database:user').then(v => v || this.getSecret('POSTGRES_USER')),
+      this.getSecret('database:password').then(v => v || this.getSecret('POSTGRES_PASSWORD')),
     ]);
 
     return {
