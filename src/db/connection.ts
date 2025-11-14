@@ -1,7 +1,7 @@
 import { Pool, PoolConfig } from 'pg';
 import { config } from '../config/index.js';
 import logger from '../core/logger';
-import daprSecretManager from '../services/daprSecretManager.service.js';
+import { getDatabaseConfig } from '../clients/index.js';
 
 /**
  * Database connection pool for PostgreSQL
@@ -33,12 +33,12 @@ class DatabaseConnection {
     // Try to get database configuration from Dapr secrets first
     let dbConfig;
     try {
-      dbConfig = await daprSecretManager.getDatabaseConfig();
+      dbConfig = await getDatabaseConfig();
       logger.info('Database configuration loaded from Dapr secrets', {
         component: 'database-pool',
         host: dbConfig.host,
         port: dbConfig.port,
-        database: dbConfig.name,
+        database: dbConfig.database,
       });
     } catch (error) {
       logger.warn('Failed to load database config from Dapr, using environment variables', {
@@ -48,19 +48,20 @@ class DatabaseConnection {
       dbConfig = {
         host: config.database.host,
         port: config.database.port,
-        name: config.database.name,
-        user: config.database.user,
+        database: config.database.name,
+        username: config.database.user,
         password: config.database.password,
+        ssl: config.database.ssl,
       };
     }
 
     const poolConfig: PoolConfig = {
       host: dbConfig.host,
       port: dbConfig.port,
-      database: dbConfig.name,
-      user: dbConfig.user,
+      database: dbConfig.database,
+      user: dbConfig.username,
       password: dbConfig.password,
-      ssl: config.database.ssl,
+      ssl: dbConfig.ssl || config.database.ssl,
       min: config.database.poolMin,
       max: config.database.poolMax,
       idleTimeoutMillis: 30000,

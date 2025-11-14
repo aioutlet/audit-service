@@ -8,7 +8,7 @@ import { config, validateConfig } from './config/index.js';
 import { initializeDatabase, closeDatabaseConnections } from './db/index.js';
 import logger from './core/logger.js';
 import { registerAllSubscriptions } from './events/consumers/index.js';
-import daprServerService from './services/daprServer.service.js';
+import daprServerService from './clients/dapr.server.js';
 import { traceContextMiddleware } from './middleware/traceContext.middleware.js';
 import { errorMiddleware, notFoundHandler } from './middleware/error.middleware.js';
 import operationalRoutes from './routes/operational.routes.js';

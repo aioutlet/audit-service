@@ -34,6 +34,14 @@ interface ServiceConfig {
   version: string;
 }
 
+interface DaprConfig {
+  host: string;
+  httpPort: number;
+  grpcPort: number;
+  appPort: number;
+  secretStoreName: string;
+}
+
 interface Config {
   env: string;
   port: number;
@@ -42,6 +50,7 @@ interface Config {
   logging: LoggingConfig;
   audit: AuditConfig;
   service: ServiceConfig;
+  dapr: DaprConfig;
 }
 
 const getEnv = (key: string, defaultValue?: string): string => {
@@ -111,5 +120,13 @@ export const config: Config = {
   service: {
     name: getEnv('NAME', 'audit-service'),
     version: getEnv('VERSION', '1.0.0'),
+  },
+
+  dapr: {
+    host: getEnv('DAPR_HOST', '127.0.0.1'),
+    httpPort: getEnvNumber('DAPR_HTTP_PORT', 3512),
+    grpcPort: getEnvNumber('DAPR_GRPC_PORT', 50012),
+    appPort: getEnvNumber('PORT', 9000), // Dapr app port same as service port
+    secretStoreName: getEnv('DAPR_SECRET_STORE_NAME', 'secret-store'),
   },
 };

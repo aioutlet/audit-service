@@ -38,15 +38,15 @@ class DaprServerService {
     }
 
     const appPort = config.port || 9000;
-    const daprHost = process.env.DAPR_HOST || '127.0.0.1';
-    const daprPort = process.env.DAPR_HTTP_PORT || '3500';
+    const daprHost = config.dapr.host;
+    const daprPort = config.dapr.httpPort;
 
     this.daprServer = new DaprServer({
       serverHost: '0.0.0.0',
       serverPort: appPort.toString(),
       clientOptions: {
         daprHost,
-        daprPort,
+        daprPort: String(daprPort),
         communicationProtocol: CommunicationProtocolEnum.HTTP,
       },
     });
