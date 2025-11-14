@@ -1,0 +1,62 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Start Dapr Sidecar",
+      "type": "shell",
+      "command": "dapr",
+      "args": [
+        "run",
+        "--app-id", "audit-service",
+        "--app-port", "1012",
+        "--dapr-http-port", "3512",
+        "--dapr-grpc-port", "50012",
+        "--resources-path", ".dapr/components",
+        "--config", ".dapr/config.yaml",
+        "--log-level", "warn"
+      ],
+      "isBackground": true,
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "dedicated",
+        "showReuseMessage": false,
+        "clear": false
+      },
+      "problemMatcher": {
+        "pattern": [
+          {
+            "regexp": ".",
+            "file": 1,
+            "location": 2,
+            "message": 3
+          }
+        ],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".*Starting Dapr.*",
+          "endsPattern": ".*(You're up and running|Dapr initialized|dapr initialized).*"
+        }
+      }
+    },
+    {
+      "label": "Stop Dapr Sidecar",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-Command",
+        "Get-Process -Name daprd -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue; Write-Host 'Stopped Dapr sidecar processes'"
+      ],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": false
+      },
+      "problemMatcher": []
+    }
+  ]
+}

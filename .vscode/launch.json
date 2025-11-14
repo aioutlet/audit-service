@@ -1,0 +1,24 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["tsx", "watch"],
+      "program": "${workspaceFolder}/src/server.ts",
+      "envFile": "${workspaceFolder}/.env",
+      "env": {
+        "NODE_ENV": "development",
+        "PORT": "1012",
+        "DAPR_HTTP_PORT": "3512",
+        "DAPR_GRPC_PORT": "50012"
+      },
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"],
+      "preLaunchTask": "Start Dapr Sidecar",
+      "postDebugTask": "Stop Dapr Sidecar"
+    }
+  ]
+}
