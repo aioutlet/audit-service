@@ -5,7 +5,7 @@
 
 import { DaprClient } from '@dapr/dapr';
 import logger from '../core/logger.js';
-import config from '../config/index.js';
+import { config } from '../config/index.js';
 
 class DaprSecretManager {
   private daprHost: string;

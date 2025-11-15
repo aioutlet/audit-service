@@ -8,7 +8,7 @@ import logger from '../../core/logger.js';
 import auditLogService from '../../services/auditLog.service.js';
 import { trackMessageProcessed } from '../../app.js';
 
-const PUBSUB_NAME = 'audit-pubsub';
+const PUBSUB_NAME = 'event-bus';
 
 /**
  * Register user event subscriptions with Dapr

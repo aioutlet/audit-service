@@ -7,7 +7,7 @@ import { DaprServer } from '@dapr/dapr';
 import logger from '../../core/logger.js';
 import { trackMessageProcessed } from '../../app.js';
 
-const PUBSUB_NAME = 'audit-pubsub';
+const PUBSUB_NAME = 'event-bus';
 
 /**
  * Register all inventory event subscriptions

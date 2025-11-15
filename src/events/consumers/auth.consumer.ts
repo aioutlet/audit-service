@@ -7,14 +7,15 @@ import { DaprServer } from '@dapr/dapr';
 import logger from '../../core/logger.js';
 import { trackMessageProcessed } from '../../app.js';
 
-const PUBSUB_NAME = 'audit-pubsub';
+// Shared event bus for all services
+const PUBSUB_NAME = 'event-bus';
 
 /**
  * Register auth event subscriptions with Dapr
  */
 export function registerAuthSubscriptions(server: DaprServer): void {
   // User Registration
-  server.pubsub.subscribe(PUBSUB_NAME, 'user.registered', async (event: any) => {
+  server.pubsub.subscribe(PUBSUB_NAME, 'auth.user.registered', async (event: any) => {
     try {
       trackMessageProcessed();
       logger.business('USER_REGISTERED', {
@@ -41,13 +42,29 @@ export function registerAuthSubscriptions(server: DaprServer): void {
   });
 
   // User Login
-  server.pubsub.subscribe(PUBSUB_NAME, 'user.login', async (event: any) => {
+  server.pubsub.subscribe(PUBSUB_NAME, 'auth.login', async (event: any) => {
     try {
       trackMessageProcessed();
+      
+      logger.info('Received user login event', {
+        eventId: event.eventId,
+        userId: event.data?.userId,
+        email: event.data?.email,
+        success: event.data?.success,
+        timestamp: event.timestamp,
+      });
+
       const success = event.data?.success !== false;
       const severity = success ? 'medium' : 'high';
 
       if (success) {
+        logger.info('Processing successful login event', {
+          userId: event.data?.userId,
+          email: event.data?.email,
+          sessionId: event.data?.sessionId,
+          loginMethod: event.data?.loginMethod,
+        });
+
         logger.business('USER_LOGIN', {
           eventId: event.eventId,
           userId: event.data?.userId,
@@ -64,7 +81,19 @@ export function registerAuthSubscriptions(server: DaprServer): void {
           severity,
           complianceTags: ['auth', 'login', 'user-activity', 'security'],
         });
+        
+        logger.info('Successfully logged user login event', {
+          userId: event.data?.userId,
+          email: event.data?.email,
+        });
       } else {
+        logger.warn('Processing failed login attempt', {
+          userId: event.data?.userId,
+          email: event.data?.email,
+          errorMessage: event.data?.errorMessage,
+          ipAddress: event.data?.ipAddress,
+        });
+
         logger.security('USER_LOGIN_FAILED', {
           eventId: event.eventId,
           userId: event.data?.userId,
@@ -80,6 +109,11 @@ export function registerAuthSubscriptions(server: DaprServer): void {
           severity,
           complianceTags: ['auth', 'login-failed', 'security', 'alert'],
         });
+        
+        logger.warn('Successfully logged failed login attempt', {
+          userId: event.data?.userId,
+          email: event.data?.email,
+        });
       }
     } catch (error) {
       logger.error('Error handling user.login event', { error, event });
@@ -88,7 +122,7 @@ export function registerAuthSubscriptions(server: DaprServer): void {
   });
 
   // Email Verification Request
-  server.pubsub.subscribe(PUBSUB_NAME, 'email.verification.requested', async (event: any) => {
+  server.pubsub.subscribe(PUBSUB_NAME, 'auth.email.verification.requested', async (event: any) => {
     try {
       trackMessageProcessed();
       logger.business('EMAIL_VERIFICATION_REQUESTED', {
@@ -112,7 +146,7 @@ export function registerAuthSubscriptions(server: DaprServer): void {
   });
 
   // Password Reset Request
-  server.pubsub.subscribe(PUBSUB_NAME, 'password.reset.requested', async (event: any) => {
+  server.pubsub.subscribe(PUBSUB_NAME, 'auth.password.reset.requested', async (event: any) => {
     try {
       trackMessageProcessed();
       logger.security('PASSWORD_RESET_REQUESTED', {
@@ -136,7 +170,7 @@ export function registerAuthSubscriptions(server: DaprServer): void {
   });
 
   // Password Reset Completed
-  server.pubsub.subscribe(PUBSUB_NAME, 'password.reset.completed', async (event: any) => {
+  server.pubsub.subscribe(PUBSUB_NAME, 'auth.password.reset.completed', async (event: any) => {
     try {
       trackMessageProcessed();
       logger.security('PASSWORD_RESET_COMPLETED', {
@@ -160,7 +194,7 @@ export function registerAuthSubscriptions(server: DaprServer): void {
   });
 
   // Account Reactivation Request
-  server.pubsub.subscribe(PUBSUB_NAME, 'account.reactivation.requested', async (event: any) => {
+  server.pubsub.subscribe(PUBSUB_NAME, 'auth.account.reactivation.requested', async (event: any) => {
     try {
       trackMessageProcessed();
       logger.business('ACCOUNT_REACTIVATION_REQUESTED', {
