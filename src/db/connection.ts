@@ -23,37 +23,21 @@ class DatabaseConnection {
   }
 
   /**
-   * Initialize database connection pool
+   * Initialize database connection pool with lazy loading from Dapr secrets
    */
   async initialize(): Promise<Pool> {
     if (this.pool) {
       return this.pool;
     }
 
-    // Try to get database configuration from Dapr secrets first
-    let dbConfig;
-    try {
-      dbConfig = await getDatabaseConfig();
-      logger.info('Database configuration loaded from Dapr secrets', {
-        component: 'database-pool',
-        host: dbConfig.host,
-        port: dbConfig.port,
-        database: dbConfig.database,
-      });
-    } catch (error) {
-      logger.warn('Failed to load database config from Dapr, using environment variables', {
-        component: 'database-pool',
-        error: error instanceof Error ? error.message : 'Unknown error',
-      });
-      dbConfig = {
-        host: config.database.host,
-        port: config.database.port,
-        database: config.database.name,
-        username: config.database.user,
-        password: config.database.password,
-        ssl: config.database.ssl,
-      };
-    }
+    // Load database configuration from Dapr secrets (no fallback)
+    const dbConfig = await getDatabaseConfig();
+    logger.info('Database configuration loaded from Dapr secrets', {
+      component: 'database-pool',
+      host: dbConfig.host,
+      port: dbConfig.port,
+      database: dbConfig.database,
+    });
 
     const poolConfig: PoolConfig = {
       host: dbConfig.host,

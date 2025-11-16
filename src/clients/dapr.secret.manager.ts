@@ -118,12 +118,16 @@ class DaprSecretManager {
       this.getSecret('DB_SSL'),
     ]);
 
+    if (!host || !port || !database || !username || !password) {
+      throw new Error('Missing required database secrets from Dapr');
+    }
+
     return {
-      host: host || 'localhost',
-      port: parseInt(port || '5434', 10),
-      database: database || 'audit_service_db',
-      username: username || 'admin',
-      password: password || 'admin123',
+      host,
+      port: parseInt(port, 10),
+      database,
+      username,
+      password,
       ssl: ssl === 'true',
     };
   }
@@ -141,9 +145,13 @@ class DaprSecretManager {
       this.getSecret('MESSAGE_BROKER_QUEUE'),
     ]);
 
+    if (!url || !queue) {
+      throw new Error('Missing required message broker secrets from Dapr');
+    }
+
     return {
-      url: url || 'amqp://admin:admin123@localhost:5672/',
-      queue: queue || 'audit-service.queue',
+      url,
+      queue,
     };
   }
 
@@ -156,8 +164,12 @@ class DaprSecretManager {
   }> {
     const secret = await this.getSecret('JWT_SECRET');
 
+    if (!secret) {
+      throw new Error('JWT_SECRET not found in Dapr secret store');
+    }
+
     return {
-      secret: secret || 'default-secret-key',
+      secret,
     };
   }
 }
