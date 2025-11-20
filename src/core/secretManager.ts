@@ -4,7 +4,7 @@
  */
 
 import { DaprClient } from '@dapr/dapr';
-import logger from '../core/logger.js';
+import logger from './logger.js';
 import { config } from '../config/index.js';
 
 class DaprSecretManager {
@@ -39,53 +39,36 @@ class DaprSecretManager {
 
       const response = await client.secret.get(this.secretStoreName, secretName);
 
-      // Handle different response types
-      if (response && typeof response === 'object') {
-        // Response is typically an object like { secretName: 'value' }
-        const value = response[secretName];
-        if (value !== undefined && value !== null) {
-          logger.debug('Retrieved secret from Dapr', {
-            event: 'secret_retrieved',
-            secretName,
-            source: 'dapr',
-            store: this.secretStoreName,
-          });
-          return String(value);
-        }
-
-        // If not found by key, try getting first value
-        const values = Object.values(response);
-        if (values.length > 0 && values[0] !== undefined) {
-          logger.debug('Retrieved secret from Dapr (first value)', {
-            event: 'secret_retrieved',
-            secretName,
-            source: 'dapr',
-            store: this.secretStoreName,
-          });
-          return String(values[0]);
-        }
+      // Dapr returns an object like { secretName: 'value' }
+      if (response && secretName in response) {
+        const value = (response as Record<string, unknown>)[secretName];
+        logger.debug('Retrieved secret from Dapr', {
+          event: 'secret_retrieved',
+          secretName,
+          source: 'dapr',
+          store: this.secretStoreName,
+        });
+        return String(value);
       }
 
-      // If we get here, no value was found in Dapr
-      logger.error('Secret not found in Dapr store', {
+      logger.debug('Secret not found in Dapr store, will use fallback', {
         event: 'secret_not_found',
         secretName,
         store: this.secretStoreName,
       });
       return null;
     } catch (error) {
-      logger.error(`Failed to get secret from Dapr: ${(error as Error).message}`, {
+      logger.debug(`Failed to get secret from Dapr, will use fallback: ${(error as Error).message}`, {
         event: 'secret_retrieval_error',
         secretName,
         error: (error as Error).message,
         store: this.secretStoreName,
       });
-      throw error;
+      return null;
     }
   }
 
   /**
-
    * Get database configuration from secrets
    * @returns Database connection parameters
    */
@@ -106,17 +89,14 @@ class DaprSecretManager {
       this.getSecret('DB_SSL'),
     ]);
 
-    if (!host || !port || !database || !username || !password) {
-      throw new Error('Missing required database secrets from Dapr');
-    }
-
+    // Use environment variables as fallback
     return {
-      host,
-      port: parseInt(port, 10),
-      database,
-      username,
-      password,
-      ssl: ssl === 'true',
+      host: host || process.env.POSTGRES_HOST || 'localhost',
+      port: parseInt(port || process.env.POSTGRES_PORT || '5432', 10),
+      database: database || process.env.POSTGRES_DB || 'audit_service_db',
+      username: username || process.env.POSTGRES_USER || 'postgres',
+      password: password || process.env.POSTGRES_PASSWORD || 'password',
+      ssl: (ssl || process.env.DB_SSL || 'false') === 'true',
     };
   }
 

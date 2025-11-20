@@ -4,4 +4,4 @@
  */
 
 export { config } from './config.js';
-export { default as validateConfig } from './config.validator.js';
+export { default as validateConfig } from '../validators/config.validator.js';

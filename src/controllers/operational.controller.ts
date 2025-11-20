@@ -1,8 +1,3 @@
-/**
- * Operational Controller
- * Handles health, readiness, liveness, and metrics endpoints
- */
-
 import { Response } from 'express';
 import { RequestWithTraceContext } from '../middleware/traceContext.middleware.js';
 import { config } from '../config/index.js';

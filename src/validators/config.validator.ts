@@ -63,51 +63,60 @@ interface ValidationRule {
 const validationRules: Record<string, ValidationRule> = {
   // Service Configuration
   NODE_ENV: {
-    required: true,
+    required: false,
     validator: isValidNodeEnv,
     errorMessage: 'NODE_ENV must be one of: development, production, test, staging',
+    default: 'development',
   },
   PORT: {
-    required: true,
+    required: false,
     validator: (value) => isValidPort(value),
     errorMessage: 'PORT must be a valid port number (1-65535)',
+    default: '9012',
   },
   NAME: {
-    required: true,
+    required: false,
     validator: (value) => Boolean(value && value.length > 0),
     errorMessage: 'NAME must be a non-empty string',
+    default: 'audit-service',
   },
   VERSION: {
-    required: true,
+    required: false,
     validator: (value) => Boolean(value && /^\d+\.\d+\.\d+/.test(value)),
     errorMessage: 'VERSION must be in semantic version format (e.g., 1.0.0)',
+    default: '1.0.0',
   },
 
-  // Database Configuration
+  // Database Configuration (loaded from Dapr secrets at runtime)
   POSTGRES_HOST: {
-    required: true,
+    required: false,
     validator: (value) => Boolean(value && value.length > 0),
     errorMessage: 'POSTGRES_HOST must be a non-empty string',
+    default: 'localhost',
   },
   POSTGRES_PORT: {
-    required: true,
+    required: false,
     validator: (value) => isValidPort(value),
     errorMessage: 'POSTGRES_PORT must be a valid port number',
+    default: '5432',
   },
   POSTGRES_DB: {
-    required: true,
+    required: false,
     validator: (value) => Boolean(value && value.length > 0),
     errorMessage: 'POSTGRES_DB must be a non-empty string',
+    default: 'audit_service_db',
   },
   POSTGRES_USER: {
-    required: true,
+    required: false,
     validator: (value) => Boolean(value && value.length > 0),
     errorMessage: 'POSTGRES_USER must be a non-empty string',
+    default: 'postgres',
   },
   POSTGRES_PASSWORD: {
-    required: true,
+    required: false,
     validator: (value) => Boolean(value && value.length > 0),
     errorMessage: 'POSTGRES_PASSWORD must be a non-empty string',
+    default: 'password',
   },
   DB_SSL: {
     required: false,

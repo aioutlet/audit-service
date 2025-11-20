@@ -1,7 +1,7 @@
 import { Pool, PoolConfig } from 'pg';
 import { config } from '../config/index.js';
 import logger from '../core/logger';
-import { getDatabaseConfig } from '../clients/index.js';
+import { getDatabaseConfig } from '../core/secretManager.js';
 
 /**
  * Database connection pool for PostgreSQL

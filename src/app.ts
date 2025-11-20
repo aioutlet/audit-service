@@ -7,12 +7,11 @@ import express from 'express';
 import { config, validateConfig } from './config/index.js';
 import { initializeDatabase, closeDatabaseConnections } from './db/index.js';
 import logger from './core/logger.js';
-import { registerAllSubscriptions } from './events/consumers/index.js';
-import daprServerService from './clients/dapr.server.js';
 import { traceContextMiddleware } from './middleware/traceContext.middleware.js';
 import { errorMiddleware, notFoundHandler } from './middleware/error.middleware.js';
+import homeRoutes from './routes/home.routes.js';
 import operationalRoutes from './routes/operational.routes.js';
-import apiRoutes from './routes/index.js';
+import eventRoutes from './routes/events.routes.js';
 
 // Consumer state tracking
 export const consumerState = {
@@ -29,19 +28,21 @@ export function trackMessageProcessed() {
 }
 
 /**
- * Initialize and start Express server for health/metrics on different port
+ * Initialize and start Express server
  */
 function startExpressServer(): void {
   const app = express();
-  const PORT = 9012; // Different port from Dapr server
+  const PORT = config.port || 9012;
   const HOST = '0.0.0.0';
 
   // Middleware
   app.use(express.json());
   app.use(traceContextMiddleware as any); // W3C Trace Context
 
-  // Operational routes only (health, metrics, etc.)
+  // Routes
+  app.use('/', homeRoutes);
   app.use('/', operationalRoutes);
+  app.use('/', eventRoutes);
 
   // 404 handler
   app.use(notFoundHandler);
@@ -50,7 +51,8 @@ function startExpressServer(): void {
   app.use(errorMiddleware as any);
 
   app.listen(PORT, HOST, () => {
-    logger.info(`Express server (health/metrics) running on ${HOST}:${PORT}`);
+    logger.info(`Audit Service running on ${HOST}:${PORT}`);
+    logger.info(`Ready to receive events from Dapr subscriptions`);
   });
 }
 
@@ -70,23 +72,9 @@ export async function startConsumer() {
     consumerState.connected = true;
     logger.info('Database initialized');
 
-    // Initialize Dapr server (it includes HTTP server)
-    const daprServer = await daprServerService.initialize();
-    logger.info('Dapr server initialized');
-
-    // Register all event subscriptions
-    registerAllSubscriptions(daprServer);
-    logger.info('Event subscriptions registered');
-
-    // Start Dapr server (starts internal HTTP server)
-    await daprServerService.start();
-    consumerState.consuming = true;
-    logger.info('Dapr server started - consuming events');
-
-    // Start Express server on different port for health/metrics
+    // Start Express server with event routes
     startExpressServer();
-    logger.info('Express server started');
-
+    consumerState.consuming = true;
     logger.info('Audit Service Consumer started successfully');
   } catch (error) {
     logger.error('Failed to start consumer:', error);
@@ -102,10 +90,6 @@ async function gracefulShutdown(signal: string) {
 
   try {
     consumerState.consuming = false;
-
-    // Stop Dapr server
-    await daprServerService.stop();
-    logger.info('Dapr server stopped');
 
     // Close database connections
     await closeDatabaseConnections();

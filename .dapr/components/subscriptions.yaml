@@ -1,0 +1,448 @@
+# Auth Events
+apiVersion: dapr.io/v1alpha1
+kind: Subscription
+metadata:
+  name: auth-user-registered-subscription
+spec:
+  topic: auth.user.registered
+  route: /events/auth/user-registered
+  pubsubname: event-bus
+scopes:
+  - audit-service
+---
+apiVersion: dapr.io/v1alpha1
+kind: Subscription
+metadata:
+  name: auth-login-subscription
+spec:
+  topic: auth.login
+  route: /events/auth/login
+  pubsubname: event-bus
+scopes:
+  - audit-service
+---
+apiVersion: dapr.io/v1alpha1
+kind: Subscription
+metadata:
+  name: auth-email-verification-requested-subscription
+spec:
+  topic: auth.email.verification.requested
+  route: /events/auth/email-verification-requested
+  pubsubname: event-bus
+scopes:
+  - audit-service
+---
+apiVersion: dapr.io/v1alpha1
+kind: Subscription
+metadata:
+  name: auth-password-reset-requested-subscription
+spec:
+  topic: auth.password.reset.requested
+  route: /events/auth/password-reset-requested
+  pubsubname: event-bus
+scopes:
+  - audit-service
+---
+apiVersion: dapr.io/v1alpha1
+kind: Subscription
+metadata:
+  name: auth-password-reset-completed-subscription
+spec:
+  topic: auth.password.reset.completed
+  route: /events/auth/password-reset-completed
+  pubsubname: event-bus
+scopes:
+  - audit-service
+---
+apiVersion: dapr.io/v1alpha1
+kind: Subscription
+metadata:
+  name: auth-account-reactivation-requested-subscription
+spec:
+  topic: auth.account.reactivation.requested
+  route: /events/auth/account-reactivation-requested
+  pubsubname: event-bus
+scopes:
+  - audit-service
+---
+# User Events
+apiVersion: dapr.io/v1alpha1
+kind: Subscription
+metadata:
+  name: user-created-subscription
+spec:
+  topic: user.created
+  route: /events/user/created
+  pubsubname: event-bus
+scopes:
+  - audit-service
+---
+apiVersion: dapr.io/v1alpha1
+kind: Subscription
+metadata:
+  name: user-updated-subscription
+spec:
+  topic: user.updated
+  route: /events/user/updated
+  pubsubname: event-bus
+scopes:
+  - audit-service
+---
+apiVersion: dapr.io/v1alpha1
+kind: Subscription
+metadata:
+  name: user-deleted-subscription
+spec:
+  topic: user.deleted
+  route: /events/user/deleted
+  pubsubname: event-bus
+scopes:
+  - audit-service
+---
+apiVersion: dapr.io/v1alpha1
+kind: Subscription
+metadata:
+  name: email-verified-subscription
+spec:
+  topic: email.verified
+  route: /events/user/email-verified
+  pubsubname: event-bus
+scopes:
+  - audit-service
+---
+apiVersion: dapr.io/v1alpha1
+kind: Subscription
+metadata:
+  name: password-changed-subscription
+spec:
+  topic: password.changed
+  route: /events/user/password-changed
+  pubsubname: event-bus
+scopes:
+  - audit-service
+---
+# Order Events
+apiVersion: dapr.io/v1alpha1
+kind: Subscription
+metadata:
+  name: order-placed-subscription
+spec:
+  topic: order.placed
+  route: /events/order/placed
+  pubsubname: event-bus
+scopes:
+  - audit-service
+---
+apiVersion: dapr.io/v1alpha1
+kind: Subscription
+metadata:
+  name: order-cancelled-subscription
+spec:
+  topic: order.cancelled
+  route: /events/order/cancelled
+  pubsubname: event-bus
+scopes:
+  - audit-service
+---
+apiVersion: dapr.io/v1alpha1
+kind: Subscription
+metadata:
+  name: order-delivered-subscription
+spec:
+  topic: order.delivered
+  route: /events/order/delivered
+  pubsubname: event-bus
+scopes:
+  - audit-service
+---
+apiVersion: dapr.io/v1alpha1
+kind: Subscription
+metadata:
+  name: payment-received-subscription
+spec:
+  topic: payment.received
+  route: /events/order/payment-received
+  pubsubname: event-bus
+scopes:
+  - audit-service
+---
+apiVersion: dapr.io/v1alpha1
+kind: Subscription
+metadata:
+  name: payment-failed-subscription
+spec:
+  topic: payment.failed
+  route: /events/order/payment-failed
+  pubsubname: event-bus
+scopes:
+  - audit-service
+---
+# Product Events
+apiVersion: dapr.io/v1alpha1
+kind: Subscription
+metadata:
+  name: product-created-subscription
+spec:
+  topic: product.created
+  route: /events/product/created
+  pubsubname: event-bus
+scopes:
+  - audit-service
+---
+apiVersion: dapr.io/v1alpha1
+kind: Subscription
+metadata:
+  name: product-updated-subscription
+spec:
+  topic: product.updated
+  route: /events/product/updated
+  pubsubname: event-bus
+scopes:
+  - audit-service
+---
+apiVersion: dapr.io/v1alpha1
+kind: Subscription
+metadata:
+  name: product-deleted-subscription
+spec:
+  topic: product.deleted
+  route: /events/product/deleted
+  pubsubname: event-bus
+scopes:
+  - audit-service
+---
+apiVersion: dapr.io/v1alpha1
+kind: Subscription
+metadata:
+  name: product-price-changed-subscription
+spec:
+  topic: product.price.changed
+  route: /events/product/price-changed
+  pubsubname: event-bus
+scopes:
+  - audit-service
+---
+# Cart Events
+apiVersion: dapr.io/v1alpha1
+kind: Subscription
+metadata:
+  name: cart-item-added-subscription
+spec:
+  topic: cart.item.added
+  route: /events/cart/item-added
+  pubsubname: event-bus
+scopes:
+  - audit-service
+---
+apiVersion: dapr.io/v1alpha1
+kind: Subscription
+metadata:
+  name: cart-item-removed-subscription
+spec:
+  topic: cart.item.removed
+  route: /events/cart/item-removed
+  pubsubname: event-bus
+scopes:
+  - audit-service
+---
+apiVersion: dapr.io/v1alpha1
+kind: Subscription
+metadata:
+  name: cart-cleared-subscription
+spec:
+  topic: cart.cleared
+  route: /events/cart/cleared
+  pubsubname: event-bus
+scopes:
+  - audit-service
+---
+apiVersion: dapr.io/v1alpha1
+kind: Subscription
+metadata:
+  name: cart-abandoned-subscription
+spec:
+  topic: cart.abandoned
+  route: /events/cart/abandoned
+  pubsubname: event-bus
+scopes:
+  - audit-service
+---
+# Inventory Events
+apiVersion: dapr.io/v1alpha1
+kind: Subscription
+metadata:
+  name: inventory-stock-updated-subscription
+spec:
+  topic: inventory.stock.updated
+  route: /events/inventory/stock-updated
+  pubsubname: event-bus
+scopes:
+  - audit-service
+---
+apiVersion: dapr.io/v1alpha1
+kind: Subscription
+metadata:
+  name: inventory-restock-subscription
+spec:
+  topic: inventory.restock
+  route: /events/inventory/restock
+  pubsubname: event-bus
+scopes:
+  - audit-service
+---
+apiVersion: dapr.io/v1alpha1
+kind: Subscription
+metadata:
+  name: inventory-low-stock-alert-subscription
+spec:
+  topic: inventory.low.stock.alert
+  route: /events/inventory/low-stock-alert
+  pubsubname: event-bus
+scopes:
+  - audit-service
+---
+apiVersion: dapr.io/v1alpha1
+kind: Subscription
+metadata:
+  name: inventory-reserved-subscription
+spec:
+  topic: inventory.reserved
+  route: /events/inventory/reserved
+  pubsubname: event-bus
+scopes:
+  - audit-service
+---
+# Review Events
+apiVersion: dapr.io/v1alpha1
+kind: Subscription
+metadata:
+  name: review-created-subscription
+spec:
+  topic: review.created
+  route: /events/review/created
+  pubsubname: event-bus
+scopes:
+  - audit-service
+---
+apiVersion: dapr.io/v1alpha1
+kind: Subscription
+metadata:
+  name: review-updated-subscription
+spec:
+  topic: review.updated
+  route: /events/review/updated
+  pubsubname: event-bus
+scopes:
+  - audit-service
+---
+apiVersion: dapr.io/v1alpha1
+kind: Subscription
+metadata:
+  name: review-deleted-subscription
+spec:
+  topic: review.deleted
+  route: /events/review/deleted
+  pubsubname: event-bus
+scopes:
+  - audit-service
+---
+apiVersion: dapr.io/v1alpha1
+kind: Subscription
+metadata:
+  name: review-moderated-subscription
+spec:
+  topic: review.moderated
+  route: /events/review/moderated
+  pubsubname: event-bus
+scopes:
+  - audit-service
+---
+apiVersion: dapr.io/v1alpha1
+kind: Subscription
+metadata:
+  name: review-flagged-subscription
+spec:
+  topic: review.flagged
+  route: /events/review/flagged
+  pubsubname: event-bus
+scopes:
+  - audit-service
+---
+# Notification Events
+apiVersion: dapr.io/v1alpha1
+kind: Subscription
+metadata:
+  name: notification-sent-subscription
+spec:
+  topic: notification.sent
+  route: /events/notification/sent
+  pubsubname: event-bus
+scopes:
+  - audit-service
+---
+apiVersion: dapr.io/v1alpha1
+kind: Subscription
+metadata:
+  name: notification-delivered-subscription
+spec:
+  topic: notification.delivered
+  route: /events/notification/delivered
+  pubsubname: event-bus
+scopes:
+  - audit-service
+---
+apiVersion: dapr.io/v1alpha1
+kind: Subscription
+metadata:
+  name: notification-failed-subscription
+spec:
+  topic: notification.failed
+  route: /events/notification/failed
+  pubsubname: event-bus
+scopes:
+  - audit-service
+---
+apiVersion: dapr.io/v1alpha1
+kind: Subscription
+metadata:
+  name: notification-opened-subscription
+spec:
+  topic: notification.opened
+  route: /events/notification/opened
+  pubsubname: event-bus
+scopes:
+  - audit-service
+---
+# Admin Events
+apiVersion: dapr.io/v1alpha1
+kind: Subscription
+metadata:
+  name: admin-action-performed-subscription
+spec:
+  topic: admin.action.performed
+  route: /events/admin/action-performed
+  pubsubname: event-bus
+scopes:
+  - audit-service
+---
+apiVersion: dapr.io/v1alpha1
+kind: Subscription
+metadata:
+  name: admin-user-created-subscription
+spec:
+  topic: admin.user.created
+  route: /events/admin/user-created
+  pubsubname: event-bus
+scopes:
+  - audit-service
+---
+apiVersion: dapr.io/v1alpha1
+kind: Subscription
+metadata:
+  name: admin-config-changed-subscription
+spec:
+  topic: admin.config.changed
+  route: /events/admin/config-changed
+  pubsubname: event-bus
+scopes:
+  - audit-service
