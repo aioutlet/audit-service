@@ -85,19 +85,7 @@ class DaprSecretManager {
   }
 
   /**
-   * Get multiple secrets at once
-   * @param secretNames - List of secret names to retrieve
-   * @returns Object mapping secret names to their values
-   */
-  async getMultipleSecrets(secretNames: string[]): Promise<Record<string, string | null>> {
-    const secrets: Record<string, string | null> = {};
-    for (const name of secretNames) {
-      secrets[name] = await this.getSecret(name);
-    }
-    return secrets;
-  }
 
-  /**
    * Get database configuration from secrets
    * @returns Database connection parameters
    */

@@ -127,6 +127,6 @@ export const config: Config = {
     httpPort: getEnvNumber('DAPR_HTTP_PORT', 3512),
     grpcPort: getEnvNumber('DAPR_GRPC_PORT', 50012),
     appPort: getEnvNumber('PORT', 9000), // Dapr app port same as service port
-    secretStoreName: getEnv('DAPR_SECRET_STORE_NAME', 'local-secret-store'),
+    secretStoreName: 'secret-store',
   },
 };
