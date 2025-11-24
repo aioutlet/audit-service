@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  # PostgreSQL for Audit Service
+  audit-postgres:
+    image: postgres:16
+    container_name: audit-postgres
+    restart: unless-stopped
+    ports:
+      - "5434:5432"
+    environment:
+      POSTGRES_DB: audit_service_db
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+    volumes:
+      - audit_postgres_data:/var/lib/postgresql/data
+    networks:
+      - aioutlet-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d audit_service_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Audit Service
+  audit-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: audit-service
+    restart: unless-stopped
+    ports:
+      - "1012:1012"
+    environment:
+      - NODE_ENV=production
+      - PORT=1012
+      - DATABASE_URL=postgresql://admin:admin123@audit-postgres:5432/audit_service_db
+      - RABBITMQ_URL=amqp://admin:admin123@rabbitmq-message-broker:5672
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+    depends_on:
+      audit-postgres:
+        condition: service_healthy
+    networks:
+      - aioutlet-network
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:1012/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  audit_postgres_data:
+    name: audit_postgres_data
+
+networks:
+  aioutlet-network:
+    external: true
