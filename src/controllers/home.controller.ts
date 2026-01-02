@@ -13,7 +13,7 @@ export const info = (_req: Request, res: Response): void => {
   res.json({
     message: 'Welcome to the Audit Service',
     service: config.service.name,
-    description: 'Event-driven audit logging service for AIOutlet platform',
+    description: 'Event-driven audit logging service for xShop.ai platform',
     version: config.service.version,
     environment: config.env,
     capabilities: [
